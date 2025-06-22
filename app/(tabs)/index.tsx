@@ -1,10 +1,23 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, View, Text, ScrollView, FlatList, Dimensions, RefreshControl, Image } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  Dimensions,
+  RefreshControl,
+  Image,
+} from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
 import { useAuthStore } from '@/store/authStore';
-import { products, categories, promotions } from '@/constants/MockData';
+import {
+  mockProducts,
+  mockCategories,
+  mockPromotions,
+} from '@/constants/mockData';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { PromotionCard } from '@/components/ui/PromotionCard';
 import { CategoryButton } from '@/components/ui/CategoryButton';
@@ -21,15 +34,17 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  const bestsellerProducts = products.filter((product) => product.isBestseller);
+  const bestsellerProducts = mockProducts.filter(
+    (product) => product.isBestseller
+  );
 
   const filteredProducts = selectedCategory
-    ? products.filter((product) => product.categoryId === selectedCategory)
-    : products;
+    ? mockProducts.filter((product) => product.categoryId === selectedCategory)
+    : mockProducts;
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setRefreshing(false);
   }, []);
 
@@ -42,11 +57,15 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.header}>
         <View>
           <Image
-            source={{ uri: "https://goodhealthy.co.in/wp-content/uploads/2023/01/Good-Healthy-Logo-2-768x768.png" }}
+            source={{
+              uri: 'https://goodhealthy.co.in/wp-content/uploads/2023/01/Good-Healthy-Logo-2-768x768.png',
+            }}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -61,7 +80,7 @@ export default function HomeScreen() {
         <Input
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search for food..."
+          placeholder="Search for Parathas..."
           leftIcon={<Search size={20} color={theme.colors.icon} />}
         />
       </View>
@@ -81,7 +100,7 @@ export default function HomeScreen() {
         {/* Promotions */}
         <View style={styles.sectionContainer}>
           <FlatList
-            data={promotions}
+            data={mockPromotions}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <PromotionCard
@@ -102,11 +121,16 @@ export default function HomeScreen() {
 
         {/* Categories */}
         <View style={styles.sectionContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+            ]}
+          >
             Categories
           </Text>
           <FlatList
-            data={categories}
+            data={mockCategories}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <CategoryButton
@@ -125,7 +149,12 @@ export default function HomeScreen() {
         {/* Bestsellers */}
         {!selectedCategory && (
           <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+              ]}
+            >
               Bestsellers
             </Text>
             <FlatList
@@ -150,9 +179,15 @@ export default function HomeScreen() {
 
         {/* All Foods or Filtered by Category */}
         <View style={styles.sectionContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+            ]}
+          >
             {selectedCategory
-              ? categories.find(c => c.id === selectedCategory)?.name || 'Products'
+              ? mockCategories.find((c) => c.id === selectedCategory)?.name ||
+                'Products'
               : 'All Parathas'}
           </Text>
           <View style={styles.gridContainer}>

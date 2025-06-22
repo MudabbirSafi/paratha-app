@@ -7,38 +7,42 @@ import { useCartStore } from '@/store/cartStore';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { userData } from '@/constants/MockData';
+import { mockUser } from '@/constants/mockData';
 import { MapPin, CreditCard, ChevronRight } from 'lucide-react-native';
 
 export default function CheckoutScreen() {
   const { theme } = useThemeStore();
   const { items, getSubtotal } = useCartStore();
-  
-  const [selectedAddress, setSelectedAddress] = useState(userData.addresses[0]);
-  const [selectedPayment, setSelectedPayment] = useState(userData.paymentMethods[0]);
-  
+
+  const [selectedAddress, setSelectedAddress] = useState(mockUser.addresses[0]);
+  const [selectedPayment, setSelectedPayment] = useState(
+    mockUser.paymentMethods[0]
+  );
+
   const subtotal = getSubtotal();
   const deliveryFee = 2.99;
   const total = subtotal + deliveryFee;
-  
+
   const handleProceedToPayment = () => {
-    router.push('/checkout/payment');
+    // router.push('/checkout/payment');
   };
-  
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.colors.text }]}>
             Checkout
           </Text>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
             Delivery Address
           </Text>
-          
+
           <Card style={styles.addressCard}>
             <View style={styles.addressHeader}>
               <MapPin size={20} color={theme.colors.primary} />
@@ -46,21 +50,27 @@ export default function CheckoutScreen() {
                 {selectedAddress.type}
               </Text>
             </View>
-            
+
             <Text style={[styles.address, { color: theme.colors.text }]}>
               {selectedAddress.address}
             </Text>
-            <Text style={[styles.addressDetails, { color: theme.colors.secondaryText }]}>
-              {selectedAddress.city}, {selectedAddress.state} {selectedAddress.zipCode}
+            <Text
+              style={[
+                styles.addressDetails,
+                { color: theme.colors.secondaryText },
+              ]}
+            >
+              {selectedAddress.city}, {selectedAddress.state}{' '}
+              {selectedAddress.zipCode}
             </Text>
           </Card>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
             Payment Method
           </Text>
-          
+
           <Card style={styles.paymentCard}>
             <View style={styles.paymentHeader}>
               <CreditCard size={20} color={theme.colors.primary} />
@@ -68,61 +78,82 @@ export default function CheckoutScreen() {
                 {selectedPayment.type} •••• {selectedPayment.lastFour}
               </Text>
             </View>
-            
-            <Text style={[styles.paymentExpiry, { color: theme.colors.secondaryText }]}>
+
+            <Text
+              style={[
+                styles.paymentExpiry,
+                { color: theme.colors.secondaryText },
+              ]}
+            >
               Expires {selectedPayment.expiryDate}
             </Text>
           </Card>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
             Order Summary
           </Text>
-          
+
           <Card style={styles.summaryCard}>
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: theme.colors.secondaryText }]}>
+              <Text
+                style={[
+                  styles.summaryLabel,
+                  { color: theme.colors.secondaryText },
+                ]}
+              >
                 Subtotal
               </Text>
               <Text style={[styles.summaryValue, { color: theme.colors.text }]}>
-                ${subtotal.toFixed(2)}
+                ₹{subtotal.toFixed(2)}
               </Text>
             </View>
-            
+
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: theme.colors.secondaryText }]}>
+              <Text
+                style={[
+                  styles.summaryLabel,
+                  { color: theme.colors.secondaryText },
+                ]}
+              >
                 Delivery Fee
               </Text>
               <Text style={[styles.summaryValue, { color: theme.colors.text }]}>
-                ${deliveryFee.toFixed(2)}
+                ₹{deliveryFee.toFixed(2)}
               </Text>
             </View>
-            
-            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-            
+
+            <View
+              style={[styles.divider, { backgroundColor: theme.colors.border }]}
+            />
+
             <View style={styles.summaryRow}>
               <Text style={[styles.totalLabel, { color: theme.colors.text }]}>
                 Total
               </Text>
-              <Text style={[styles.totalValue, { color: theme.colors.primary }]}>
-                ${total.toFixed(2)}
+              <Text
+                style={[styles.totalValue, { color: theme.colors.primary }]}
+              >
+                ₹{total.toFixed(2)}
               </Text>
             </View>
           </Card>
         </View>
       </ScrollView>
-      
+
       <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
         <View style={styles.totalContainer}>
           <Text style={[styles.footerTotal, { color: theme.colors.text }]}>
-            ${total.toFixed(2)}
+            ₹{total.toFixed(2)}
           </Text>
-          <Text style={[styles.footerLabel, { color: theme.colors.secondaryText }]}>
+          <Text
+            style={[styles.footerLabel, { color: theme.colors.secondaryText }]}
+          >
             Total Amount
           </Text>
         </View>
-        
+
         <Button
           title="Proceed to Payment"
           onPress={handleProceedToPayment}

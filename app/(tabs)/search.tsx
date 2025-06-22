@@ -2,24 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
-import { products } from '@/constants/MockData';
+import { mockProducts } from '@/constants/mockData';
 import { Input } from '@/components/ui/Input';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { Search as SearchIcon, X } from 'lucide-react-native';
+import { Product } from '@/types';
 
 export default function SearchScreen() {
   const { theme } = useThemeStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState(mockProducts);
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      setFilteredProducts(products);
+      setFilteredProducts(mockProducts);
     } else {
       const lowercasedQuery = searchQuery.toLowerCase();
-      const filtered = products.filter((product) =>
-        product.name.toLowerCase().includes(lowercasedQuery) ||
-        product.description.toLowerCase().includes(lowercasedQuery)
+      const filtered = mockProducts.filter(
+        (product: Product) =>
+          product.name.toLowerCase().includes(lowercasedQuery) ||
+          product.description.toLowerCase().includes(lowercasedQuery)
       );
       setFilteredProducts(filtered);
     }
@@ -35,9 +37,16 @@ export default function SearchScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.text, fontFamily: 'Poppins-Bold' }]}>
+        <Text
+          style={[
+            styles.title,
+            { color: theme.colors.text, fontFamily: 'Poppins-Bold' },
+          ]}
+        >
           Search
         </Text>
       </View>
@@ -46,24 +55,38 @@ export default function SearchScreen() {
         <Input
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search for Malabar Paratha,Puri,Wheat Paratha,Wheat chapati...... "
+          placeholder="Search for  Parathas.... "
           leftIcon={<SearchIcon size={20} color={theme.colors.icon} />}
-          rightIcon={searchQuery ?
-            <X
-              size={20}
-              color={theme.colors.icon}
-              onPress={clearSearch}
-            /> : undefined
+          rightIcon={
+            searchQuery ? (
+              <X size={20} color={theme.colors.icon} onPress={clearSearch} />
+            ) : undefined
           }
         />
       </View>
 
       {filteredProducts.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyText, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Medium' }]}>
+          <Text
+            style={[
+              styles.emptyText,
+              {
+                color: theme.colors.secondaryText,
+                fontFamily: 'Poppins-Medium',
+              },
+            ]}
+          >
             No results found for "{searchQuery}"
           </Text>
-          <Text style={[styles.emptySubtext, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}>
+          <Text
+            style={[
+              styles.emptySubtext,
+              {
+                color: theme.colors.secondaryText,
+                fontFamily: 'Poppins-Regular',
+              },
+            ]}
+          >
             Try different keywords or check for typos
           </Text>
         </View>
@@ -81,7 +104,6 @@ export default function SearchScreen() {
                 image={item.image}
                 rating={item.rating}
                 isBestseller={item.isBestseller}
-                onPress={() => navigateToProductDetail(item.id)}
               />
             </View>
           )}

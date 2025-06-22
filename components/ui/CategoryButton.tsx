@@ -11,7 +11,7 @@ import { useThemeStore } from '@/store/themeStore';
 
 interface CategoryButtonProps {
   name: string;
-  image: ImageSourcePropType;
+  image: ImageSourcePropType | string;
   isSelected?: boolean;
   onPress: () => void;
 }
@@ -22,7 +22,9 @@ export const CategoryButton: React.FC<CategoryButtonProps> = ({
   isSelected = false,
   onPress,
 }) => {
-  const { theme } = useThemeStore();
+  const { theme, isDarkMode } = useThemeStore();
+
+  const imageSource = typeof image === 'string' ? { uri: image } : image;
 
   return (
     <TouchableOpacity
@@ -31,16 +33,16 @@ export const CategoryButton: React.FC<CategoryButtonProps> = ({
         {
           backgroundColor: isSelected
             ? theme.colors.primary
-            : theme.isDarkMode
-              ? theme.colors.card
-              : theme.colors.neutral?.[100] || theme.colors.border,
+            : isDarkMode
+            ? theme.colors.card
+            : theme.colors.border,
         },
       ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.imageContainer}>
-        <Image source={image} style={styles.image} resizeMode="contain" />
+        <Image source={imageSource} style={styles.image} resizeMode="contain" />
       </View>
       <Text
         style={[

@@ -45,7 +45,7 @@ export default function LoginScreen() {
           router.replace('/business/BusinessDashboard');
           break;
         case 'delivery':
-          router.replace('/delivery/DeliveryDashboard');
+          router.replace('/delivery/DeliveryPartnerDashboard');
           break;
         default:
           router.replace('/(customer)');
