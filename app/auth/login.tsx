@@ -1,77 +1,58 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { router } from 'expo-router';
 import { useThemeStore } from '@/store/themeStore';
 import { useAuthStore, UserType } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { validateEmail, validatePassword } from '@/utils/validation';
-import { Mail, Lock, Store, Truck, User } from 'lucide-react-native';
+import { validateEmail } from '@/utils/validation';
+import { Mail, Lock } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const { theme } = useThemeStore();
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, error, clearError, userType } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState<UserType>('customer');
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [loginError, setLoginError] = useState<string | null>(null);
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const validateForm = () => {
     const emailValidationError = validateEmail(email);
-    const passwordValidationError = validatePassword(password);
 
     setEmailError(emailValidationError);
-    setPasswordError(passwordValidationError);
 
-    return !emailValidationError && !passwordValidationError;
+    return !emailValidationError;
   };
 
   const handleLogin = async () => {
-    setLoginError(null);
+    if (!validateForm()) return;
 
-    if (!validateForm()) {
-      return;
-    }
-
-    const success = await login(email, password, userType);
-
+    const success = await login(email, password);
+    debugger;
     if (success) {
-      // Updated navigation based on user type
-      switch (userType) {
-        case 'business':
-          router.replace('/business/BusinessDashboard');
-          break;
-        case 'delivery':
-          router.replace('/delivery/DeliveryPartnerDashboard');
-          break;
-        default:
-          router.replace('/(customer)');
+      if (userType === 'delivery') {
+        router.replace('/delivery/DeliveryPartnerDashboard');
+      } else {
+        router.replace('/(tabs)');
       }
-    } else {
-      setLoginError('Invalid email or password. Please try again.');
-    }
-  };
-  const navigateToRegister = () => {
-    switch (userType) {
-      case 'business':
-        router.push('/auth/business-register');
-        break;
-      case 'delivery':
-        router.push('/auth/delivery-register');
-        break;
-      default:
-        router.push('/auth/register');
     }
   };
 
-  const userTypes: { type: UserType; icon: React.ReactNode; label: string }[] = [
-    { type: 'customer', icon: <User size={24} />, label: 'Customer' },
-    { type: 'business', icon: <Store size={24} />, label: 'Business' },
-    { type: 'delivery', icon: <Truck size={24} />, label: 'Delivery' },
-  ];
+  const navigateToRegister = () => {
+    router.push('/auth/register-type');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -81,55 +62,47 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { backgroundColor: theme.colors.background }
+          { backgroundColor: theme.colors.background },
         ]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text, fontFamily: 'Poppins-Bold' }]}>
+          <Text
+            style={[
+              styles.title,
+              { color: theme.colors.text, fontWeight: '700' },
+            ]}
+          >
             Welcome Back
           </Text>
-          <Text style={[styles.subtitle, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}>
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                color: theme.colors.textSecondary,
+                fontWeight: '400',
+              },
+            ]}
+          >
             Login to continue ordering delicious parathas
           </Text>
         </View>
 
-        <View style={styles.userTypeContainer}>
-          {userTypes.map(({ type, icon, label }) => (
-            <TouchableOpacity
-              key={type}
+        <View style={styles.form}>
+          {error && (
+            <View
               style={[
-                styles.userTypeButton,
-                {
-                  backgroundColor: userType === type ? theme.colors.primary : theme.colors.card,
-                  borderColor: theme.colors.border,
-                }
+                styles.errorContainer,
+                { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
               ]}
-              onPress={() => setUserType(type)}
             >
-              {React.cloneElement(icon as React.ReactElement, {
-                color: userType === type ? 'white' : theme.colors.text
-              })}
               <Text
                 style={[
-                  styles.userTypeLabel,
-                  {
-                    color: userType === type ? 'white' : theme.colors.text,
-                    fontFamily: 'Poppins-Medium'
-                  }
+                  styles.errorText,
+                  { color: theme.colors.error, fontWeight: '500' },
                 ]}
               >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.form}>
-          {loginError && (
-            <View style={[styles.errorContainer, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-              <Text style={[styles.errorText, { color: theme.colors.error, fontFamily: 'Poppins-Medium' }]}>
-                {loginError}
+                {error}
               </Text>
             </View>
           )}
@@ -140,11 +113,12 @@ export default function LoginScreen() {
             onChangeText={(text) => {
               setEmail(text);
               setEmailError(null);
+              clearError();
             }}
             placeholder="Your email address"
             keyboardType="email-address"
             autoCapitalize="none"
-            error={emailError}
+            error={emailError || undefined}
             leftIcon={<Mail size={20} color={theme.colors.icon} />}
           />
 
@@ -153,16 +127,21 @@ export default function LoginScreen() {
             value={password}
             onChangeText={(text) => {
               setPassword(text);
-              setPasswordError(null);
+              clearError();
             }}
             placeholder="Your password"
             secureTextEntry
-            error={passwordError}
+            error={undefined}
             leftIcon={<Lock size={20} color={theme.colors.icon} />}
           />
 
           <TouchableOpacity style={styles.forgotPasswordContainer}>
-            <Text style={[styles.forgotPasswordText, { color: theme.colors.primary, fontFamily: 'Poppins-Medium' }]}>
+            <Text
+              style={[
+                styles.forgotPasswordText,
+                { color: theme.colors.primary, fontWeight: '500' },
+              ]}
+            >
               Forgot Password?
             </Text>
           </TouchableOpacity>
@@ -177,11 +156,27 @@ export default function LoginScreen() {
           />
 
           <View style={styles.registerContainer}>
-            <Text style={[styles.registerText, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}>
+            <Text
+              style={[
+                styles.registerText,
+                {
+                  color: theme.colors.textSecondary,
+                  fontWeight: '400',
+                },
+              ]}
+            >
               Don't have an account?{' '}
             </Text>
             <TouchableOpacity onPress={navigateToRegister}>
-              <Text style={[styles.registerLink, { color: theme.colors.primary, fontFamily: 'Poppins-SemiBold' }]}>
+              <Text
+                style={[
+                  styles.registerLink,
+                  {
+                    color: theme.colors.primary,
+                    fontWeight: '600',
+                  },
+                ]}
+              >
                 Register
               </Text>
             </TouchableOpacity>
@@ -207,24 +202,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-  },
-  userTypeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 32,
-  },
-  userTypeButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 4,
-    borderWidth: 1,
-  },
-  userTypeLabel: {
-    marginTop: 8,
-    fontSize: 12,
   },
   form: {
     width: '100%',

@@ -1,20 +1,28 @@
-import React from 'react';
+import { useThemeStore } from '@/store/themeStore';
+import { useAuthStore } from '@/store/authStore';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
+import { mockUser, mockOrders } from '@/constants/mockData';
+import { formatDateTime } from '@/utils/formatUtils';
+
+import React, { useState, useEffect } from 'react';
+
 import {
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  Modal,
 } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { router } from 'expo-router';
-import { useThemeStore } from '@/store/themeStore';
-import { useAuthStore } from '@/store/authStore';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { mockUser, mockOrders } from '@/constants/mockData';
-import { formatDateTime } from '@/utils/formatUtils';
+
 import {
   LogOut,
   ChevronRight,
@@ -25,46 +33,113 @@ import {
   Sun,
   Bell,
   CircleHelp as HelpCircle,
+  Edit,
+  Save,
+  X,
+  Laptop,
+  Check,
+  KeyRound,
 } from 'lucide-react-native';
 
 export default function ProfileScreen() {
-  const { theme, isDarkMode, toggleTheme } = useThemeStore();
-  const { user, logout } = useAuthStore();
+  const { theme, themeMode, setThemeMode } = useThemeStore();
+  const {
+    user,
+    isAuthenticated,
+    logout,
+    getProfile,
+    updateProfile,
+    isLoading,
+    error,
+  } = useAuthStore();
+
+  const [isThemeModalVisible, setThemeModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      getProfile();
+    }
+  }, [isAuthenticated]);
+
+  // If not authenticated, show login prompt
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <View style={styles.header}>
+          <Text
+            style={[
+              styles.title,
+              { color: theme.colors.text, fontWeight: '700' },
+            ]}
+          >
+            Profile
+          </Text>
+        </View>
+        <View style={styles.emptyContainer}>
+          <Text style={[styles.emptyText, { color: theme.colors.text }]}>
+            Please log in to view your profile
+          </Text>
+          <Button
+            title="Login"
+            onPress={() => router.push('/auth/login')}
+            variant="primary"
+            style={styles.loginButton}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleLogout = () => {
+    console.log('Logout button pressed');
     logout();
-    router.replace('/auth/login');
   };
 
-  const defaultAddress = mockUser.addresses.find((addr) => addr.isDefault);
-  const defaultPayment = mockUser.paymentMethods.find(
-    (method) => method.isDefault
-  );
+  const themeOptions = [
+    {
+      key: 'light',
+      label: 'Light',
+      icon: <Sun size={20} color={theme.colors.text} />,
+    },
+    {
+      key: 'dark',
+      label: 'Dark',
+      icon: <Moon size={20} color={theme.colors.text} />,
+    },
+    {
+      key: 'system',
+      label: 'System',
+      icon: <Laptop size={20} color={theme.colors.text} />,
+    },
+  ];
 
   const menuItems = [
     {
       icon: <UserIcon size={20} color={theme.colors.primary} />,
       title: 'Edit Profile',
-      onPress: () => console.log('Edit Profile pressed'),
+      onPress: () => router.push('/profile/edit' as any),
+    },
+    {
+      icon: <KeyRound size={20} color={theme.colors.primary} />,
+      title: 'Change Password',
+      onPress: () => router.push('/profile/change-password' as any),
+    },
+    {
+      icon: <Laptop size={20} color={theme.colors.primary} />,
+      title: 'Theme',
+      onPress: () => setThemeModalVisible(true),
     },
     {
       icon: <MapPin size={20} color={theme.colors.primary} />,
       title: 'Addresses',
-      onPress: () => console.log('Addresses pressed'),
+      onPress: () => router.push('/addresses'),
     },
     {
       icon: <CreditCard size={20} color={theme.colors.primary} />,
       title: 'Payment Methods',
       onPress: () => console.log('Payment Methods pressed'),
-    },
-    {
-      icon: isDarkMode ? (
-        <Sun size={20} color={theme.colors.primary} />
-      ) : (
-        <Moon size={20} color={theme.colors.primary} />
-      ),
-      title: isDarkMode ? 'Light Mode' : 'Dark Mode',
-      onPress: toggleTheme,
     },
     {
       icon: <Bell size={20} color={theme.colors.primary} />,
@@ -82,11 +157,56 @@ export default function ProfileScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isThemeModalVisible}
+        onRequestClose={() => setThemeModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: theme.colors.card },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.colors.text }]}>
+              Choose Theme
+            </Text>
+            {themeOptions.map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={styles.themeOption}
+                onPress={() => {
+                  setThemeMode(option.key as 'light' | 'dark' | 'system');
+                  setThemeModalVisible(false);
+                }}
+              >
+                {option.icon}
+                <Text
+                  style={[styles.themeOptionText, { color: theme.colors.text }]}
+                >
+                  {option.label}
+                </Text>
+                {themeMode === option.key && (
+                  <Check size={20} color={theme.colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+            <Button
+              title="Cancel"
+              onPress={() => setThemeModalVisible(false)}
+              variant="ghost"
+            />
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.header}>
         <Text
           style={[
             styles.title,
-            { color: theme.colors.text, fontFamily: 'Poppins-Bold' },
+            { color: theme.colors.text, fontWeight: '700' },
           ]}
         >
           Profile
@@ -94,168 +214,95 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.userContainer}>
-          <View
-            style={[
-              styles.userAvatar,
-              { backgroundColor: theme.colors.primary },
-            ]}
-          >
-            <Text
-              style={[styles.userInitial, { fontFamily: 'Poppins-SemiBold' }]}
-            >
-              {user?.name?.charAt(0) || 'G'}
-            </Text>
-          </View>
-
-          <View style={styles.userInfo}>
-            <Text
-              style={[
-                styles.userName,
-                { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
-              ]}
-            >
-              {user?.name || 'Guest'}
-            </Text>
-            <Text
-              style={[
-                styles.userEmail,
-                {
-                  color: theme.colors.secondaryText,
-                  fontFamily: 'Poppins-Regular',
-                },
-              ]}
-            >
-              {user?.email || 'guest@example.com'}
-            </Text>
-          </View>
-        </View>
-
-        {/* <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
-            Quick Access
-          </Text>
-
-          <View style={styles.quickAccessContainer}>
-            <Card style={styles.quickAccessCard}>
-              <Text style={[styles.quickAccessLabel, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}>
-                Default Address
-              </Text>
-              <Text
-                style={[styles.quickAccessValue, { color: theme.colors.text, fontFamily: 'Poppins-Medium' }]}
-                numberOfLines={1}
-              >
-                {defaultAddress ? `${defaultAddress.address}, ${defaultAddress.city}` : 'No address set'}
-              </Text>
-            </Card>
-
-            <Card style={styles.quickAccessCard}>
-              <Text style={[styles.quickAccessLabel, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}>
-                Payment Method
-              </Text>
-              <Text
-                style={[styles.quickAccessValue, { color: theme.colors.text, fontFamily: 'Poppins-Medium' }]}
-                numberOfLines={1}
-              >
-                {defaultPayment ? `${defaultPayment.type} •••• ${defaultPayment.lastFour}` : 'No payment method'}
-              </Text>
-            </Card>
-          </View>
-        </View> */}
-
-        <View style={styles.section}>
+        {/* <View style={styles.header}>
           <Text
             style={[
-              styles.sectionTitle,
-              { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+              styles.title,
+              { color: theme.colors.text, fontWeight: '700' },
             ]}
           >
-            Settings
+            Profile
           </Text>
-
-          <Card style={styles.menuCard}>
-            {menuItems.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.menuItem,
-                  index < menuItems.length - 1 && {
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.colors.border,
-                  },
-                ]}
-                onPress={item.onPress}
-              >
-                <View style={styles.menuItemLeft}>
-                  {item.icon}
-                  <Text
-                    style={[
-                      styles.menuItemText,
-                      {
-                        color: theme.colors.text,
-                        fontFamily: 'Poppins-Medium',
-                      },
-                    ]}
-                  >
-                    {item.title}
-                  </Text>
-                </View>
-                <ChevronRight size={20} color={theme.colors.icon} />
-              </TouchableOpacity>
-            ))}
-          </Card>
-        </View>
-
-        {/* <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
-            Recent Orders
-          </Text>
-
-          {mockOrders.map((order) => (
-            <Card key={order.id} style={styles.orderCard}>
-              <View style={styles.orderHeader}>
-                <Text style={[styles.orderId, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
-                  Order #{order.id}
-                </Text>
-                <Badge
-                  label={order.status}
-                  variant={order.status === 'Delivered' ? 'success' : 'primary'}
-                  size="sm"
-                />
-              </View>
-
-              <View style={styles.orderDetails}>
-                <Text style={[styles.orderDate, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}>
-                  {formatDateTime(order.date)}
-                </Text>
-                <Text style={[styles.orderAmount, { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' }]}>
-                  ₹{order.total.toFixed(2)}
-                </Text>
-              </View>
-
-              <View style={styles.orderItems}>
-                {order.items.map((item, index) => (
-                  <Text
-                    key={item.id}
-                    style={[styles.orderItemText, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}
-                    numberOfLines={1}
-                  >
-                    {item.quantity}x {item.name}
-                    {index < order.items.length - 1 ? ', ' : ''}
-                  </Text>
-                ))}
-              </View>
-            </Card>
-          ))}
         </View> */}
 
+        {user && (
+          <Card style={styles.profileCard}>
+            <View>
+              <Text style={[styles.profileName, { color: theme.colors.text }]}>
+                {user.name}
+              </Text>
+              <Text
+                style={[
+                  styles.profileRole,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
+                {user.role === 'delivery'
+                  ? 'Delivery Partner'
+                  : user.role === 'business'
+                  ? 'Business'
+                  : 'Customer'}
+              </Text>
+              <Text
+                style={[
+                  styles.profileInfo,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
+                {user.email}
+              </Text>
+              <Text
+                style={[
+                  styles.profileInfo,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
+                {user.phone}
+              </Text>
+            </View>
+            <Badge
+              label={user.role ? user.role.toUpperCase() : 'User'}
+              variant="success"
+            />
+          </Card>
+        )}
+
+        <View style={styles.menuContainer}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.menuItem}
+              onPress={item.onPress}
+            >
+              <View style={styles.menuItemContent}>
+                {item.icon}
+                <Text
+                  style={[styles.menuItemText, { color: theme.colors.text }]}
+                >
+                  {item.title}
+                </Text>
+              </View>
+              <ChevronRight size={16} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <View style={styles.logoutContainer}>
-          <Button
-            title="Logout"
+          <TouchableOpacity
+            style={{
+              backgroundColor: theme.colors.error,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+              alignItems: 'center',
+              width: '100%',
+            }}
             onPress={handleLogout}
-            variant="outline"
-            icon={<LogOut size={20} color={theme.colors.primary} />}
-          />
+          >
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+              Logout
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -267,31 +314,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    padding: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
   },
   userContainer: {
     flexDirection: 'row',
+    padding: 16,
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
   },
   userAvatar: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
   userInitial: {
     fontSize: 24,
     color: 'white',
   },
   userInfo: {
-    marginLeft: 16,
+    flex: 1,
   },
   userName: {
     fontSize: 18,
@@ -299,82 +345,147 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
+    marginBottom: 2,
+  },
+  userPhone: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  userAddress: {
+    fontSize: 14,
+  },
+  editContainer: {
+    flex: 1,
+  },
+  editInput: {
+    marginBottom: 8,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 4,
+    justifyContent: 'center',
+  },
+  cancelButton: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  saveButton: {
+    backgroundColor: '#10b981',
+  },
+  editButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   section: {
-    marginTop: 20,
-    paddingHorizontal: 16,
+    padding: 16,
   },
   sectionTitle: {
     fontSize: 18,
+    fontWeight: '600',
     marginBottom: 12,
-  },
-  quickAccessContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  quickAccessCard: {
-    flex: 1,
-    marginRight: 8,
-  },
-  quickAccessLabel: {
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  quickAccessValue: {
-    fontSize: 14,
   },
   menuCard: {
     padding: 0,
-    overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 16,
-    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
   },
-  menuItemLeft: {
+  menuItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   menuItemText: {
-    marginLeft: 12,
     fontSize: 16,
+    marginLeft: 16,
   },
-  orderCard: {
-    marginBottom: 12,
+  logoutButton: {
+    borderColor: '#ef4444',
+    borderWidth: 1,
   },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    padding: 32,
   },
-  orderId: {
+  emptyText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  loginButton: {
+    minWidth: 200,
+    alignSelf: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  themeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  themeOptionText: {
     fontSize: 16,
+    marginLeft: 15,
+    flex: 1,
   },
-  orderDetails: {
+  profileCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginHorizontal: 16,
+    padding: 20,
+  },
+  profileName: {
+    fontSize: 22,
+    fontWeight: '700',
     marginBottom: 8,
   },
-  orderDate: {
-    fontSize: 14,
-  },
-  orderAmount: {
+  profileRole: {
     fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
   },
-  orderItems: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  profileInfo: {
+    fontSize: 16,
+    marginBottom: 4,
   },
-  orderItemText: {
-    fontSize: 14,
+  menuContainer: {
+    marginHorizontal: 16,
+    marginTop: 24,
   },
   logoutContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    marginBottom: 16,
+    padding: 16,
+    alignItems: 'center',
   },
 });

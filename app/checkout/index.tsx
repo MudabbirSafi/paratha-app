@@ -1,31 +1,113 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
 import { useCartStore } from '@/store/cartStore';
+import { useAddressStore } from '@/store/addressStore';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { mockUser } from '@/constants/mockData';
+
+import React, { useState, useEffect } from 'react';
+
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+
+import { router } from 'expo-router';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { MapPin, CreditCard, ChevronRight } from 'lucide-react-native';
 
 export default function CheckoutScreen() {
   const { theme } = useThemeStore();
   const { items, getSubtotal } = useCartStore();
+  const { addresses, loadAddresses } = useAddressStore();
+  const { isAuthenticated } = useAuthStore();
 
-  const [selectedAddress, setSelectedAddress] = useState(mockUser.addresses[0]);
-  const [selectedPayment, setSelectedPayment] = useState(
-    mockUser.paymentMethods[0]
-  );
+  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [selectedPayment, setSelectedPayment] = useState({
+    type: 'Credit Card',
+    lastFour: '1234',
+    expiryDate: '12/25',
+  });
 
   const subtotal = getSubtotal();
   const deliveryFee = 2.99;
   const total = subtotal + deliveryFee;
 
+  useEffect(() => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      Alert.alert(
+        'Authentication Required',
+        'Please log in to continue with checkout.',
+        [
+          {
+            text: 'Login',
+            onPress: () => router.replace('/auth/login'),
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => router.back(),
+          },
+        ]
+      );
+      return;
+    }
+
+    loadAddresses();
+  }, [loadAddresses, isAuthenticated]);
+
+  useEffect(() => {
+    if (addresses.length > 0) {
+      const defaultAddress = addresses.find((addr) => addr.isDefault);
+      setSelectedAddress(defaultAddress || addresses[0]);
+    }
+  }, [addresses]);
+
   const handleProceedToPayment = () => {
     // router.push('/checkout/payment');
   };
+
+  const handleAddressPress = () => {
+    router.push('/addresses');
+  };
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  if (!selectedAddress) {
+    return (
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.colors.text }]}>
+            Checkout
+          </Text>
+        </View>
+        <View style={styles.emptyContainer}>
+          <Text style={[styles.emptyText, { color: theme.colors.text }]}>
+            No addresses found. Please add an address to continue.
+          </Text>
+          <Button
+            title="Add Address"
+            onPress={handleAddressPress}
+            variant="primary"
+            style={styles.addAddressButton}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -43,27 +125,32 @@ export default function CheckoutScreen() {
             Delivery Address
           </Text>
 
-          <Card style={styles.addressCard}>
-            <View style={styles.addressHeader}>
-              <MapPin size={20} color={theme.colors.primary} />
-              <Text style={[styles.addressType, { color: theme.colors.text }]}>
-                {selectedAddress.type}
-              </Text>
-            </View>
+          <TouchableOpacity onPress={handleAddressPress}>
+            <Card style={styles.addressCard}>
+              <View style={styles.addressHeader}>
+                <MapPin size={20} color={theme.colors.primary} />
+                <Text
+                  style={[styles.addressType, { color: theme.colors.text }]}
+                >
+                  {selectedAddress.type}
+                </Text>
+                <ChevronRight size={16} color={theme.colors.textSecondary} />
+              </View>
 
-            <Text style={[styles.address, { color: theme.colors.text }]}>
-              {selectedAddress.address}
-            </Text>
-            <Text
-              style={[
-                styles.addressDetails,
-                { color: theme.colors.secondaryText },
-              ]}
-            >
-              {selectedAddress.city}, {selectedAddress.state}{' '}
-              {selectedAddress.zipCode}
-            </Text>
-          </Card>
+              <Text style={[styles.address, { color: theme.colors.text }]}>
+                {selectedAddress.address}
+              </Text>
+              <Text
+                style={[
+                  styles.addressDetails,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
+                {selectedAddress.city}, {selectedAddress.state}{' '}
+                {selectedAddress.zipCode}
+              </Text>
+            </Card>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -82,7 +169,7 @@ export default function CheckoutScreen() {
             <Text
               style={[
                 styles.paymentExpiry,
-                { color: theme.colors.secondaryText },
+                { color: theme.colors.textSecondary },
               ]}
             >
               Expires {selectedPayment.expiryDate}
@@ -100,7 +187,7 @@ export default function CheckoutScreen() {
               <Text
                 style={[
                   styles.summaryLabel,
-                  { color: theme.colors.secondaryText },
+                  { color: theme.colors.textSecondary },
                 ]}
               >
                 Subtotal
@@ -114,7 +201,7 @@ export default function CheckoutScreen() {
               <Text
                 style={[
                   styles.summaryLabel,
-                  { color: theme.colors.secondaryText },
+                  { color: theme.colors.textSecondary },
                 ]}
               >
                 Delivery Fee
@@ -148,7 +235,7 @@ export default function CheckoutScreen() {
             ₹{total.toFixed(2)}
           </Text>
           <Text
-            style={[styles.footerLabel, { color: theme.colors.secondaryText }]}
+            style={[styles.footerLabel, { color: theme.colors.textSecondary }]}
           >
             Total Amount
           </Text>
@@ -176,6 +263,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  addAddressButton: {
+    minWidth: 200,
+  },
   section: {
     padding: 16,
   },
@@ -196,6 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
+    flex: 1,
   },
   address: {
     fontSize: 16,

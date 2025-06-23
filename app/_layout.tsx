@@ -1,18 +1,41 @@
-import { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { useThemeStore } from '@/store/themeStore';
 import { useAuthStore } from '@/store/authStore';
+import { View } from 'react-native';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  useFrameworkReady();
+  const [fontsLoaded, fontError] = useFonts({
+    'Poppins-Regular': require('../assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+    'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+    'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+  });
 
   const { theme, isDarkMode } = useThemeStore();
-  const { isAuthenticated, userType } = useAuthStore();
+  const { rehydrateAuth, isRehydrating } = useAuthStore();
+
+  useEffect(() => {
+    rehydrateAuth();
+  }, [rehydrateAuth]);
+
+  const onLayoutRootView = useCallback(async () => {
+    if ((fontsLoaded || fontError) && !isRehydrating) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError, isRehydrating]);
+
+  if ((!fontsLoaded && !fontError) || isRehydrating) {
+    return null;
+  }
 
   return (
-    <>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
         <Stack.Screen name="auth" options={{ gestureEnabled: false }} />
@@ -23,6 +46,6 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-    </>
+    </View>
   );
 }

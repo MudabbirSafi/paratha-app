@@ -1,5 +1,13 @@
+import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 
 const mockOrders = [
   {
@@ -67,57 +75,115 @@ const mockOrders = [
 ];
 
 const DeliveryPartnerDashboard = () => {
+  const { theme, themeMode, setThemeMode } = useThemeStore();
+  const { logout } = useAuthStore();
+
   const [orders, setOrders] = useState(mockOrders);
 
-  const handleMarkDelivered = (orderId) => {
-    const updated = orders.map(order =>
+  const handleMarkDelivered = (orderId: string) => {
+    const updated = orders.map((order) =>
       order.id === orderId
-        ? { ...order, status: 'Completed', eta: 'Delivered', remarks: 'Delivered on time', paymentCollected: true }
+        ? {
+            ...order,
+            status: 'Completed',
+            eta: 'Delivered',
+            remarks: 'Delivered on time',
+            paymentCollected: true,
+          }
         : order
     );
     setOrders(updated);
+  };
+
+  const handleLogout = () => {
+    // Add logout logic here
+    console.log('Logging out...');
+    logout();
+    // You can add navigation to login screen or clear user session
   };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>📦 Delivery Dashboard</Text>
 
-      {orders.map(order => (
-        <View key={order.id} style={styles.card}>
-          <View style={styles.header}>
-            <Text style={styles.orderId}>Order #{order.id}</Text>
-            <Text style={[styles.status,
-              order.status === 'Completed' ? styles.statusCompleted :
-              order.status === 'On the Way' ? styles.statusOngoing :
-              styles.statusPending
-            ]}>{order.status}</Text>
+      {orders.map((order) => (
+        <View key={order.id}>
+          <View style={styles.card}>
+            <View style={styles.header}>
+              <Text style={styles.orderId}>Order #{order.id}</Text>
+              <Text
+                style={[
+                  styles.status,
+                  order.status === 'Completed'
+                    ? styles.statusCompleted
+                    : order.status === 'On the Way'
+                    ? styles.statusOngoing
+                    : styles.statusPending,
+                ]}
+              >
+                {order.status}
+              </Text>
+            </View>
+
+            <Text style={styles.business}>🏢 {order.business}</Text>
+            <Text style={styles.section}>
+              👤 {order.customer.name} - {order.customer.phone}
+            </Text>
+            <Text style={styles.section}>📍 {order.deliveryAddress}</Text>
+            <Text style={styles.section}>
+              🕒 Ordered: {order.orderTime} | ETA: {order.eta}
+            </Text>
+            <Text style={styles.section}>
+              💳 Payment: {order.paymentMethod}
+            </Text>
+            <Text style={styles.section}>
+              ✅ Payment Collected: {order.paymentCollected ? 'Yes' : 'No'}
+            </Text>
+
+            <Text style={styles.itemsTitle}>🛒 Order Items:</Text>
+            {order.items.map((item) => (
+              <Text key={item.id} style={styles.item}>
+                • {item.name} x{item.quantity} = ₹
+                {item.unitPrice * item.quantity}
+              </Text>
+            ))}
+
+            <Text style={styles.total}>
+              💰 Total Amount: ₹{order.totalAmount}
+            </Text>
+            <Text style={styles.remarks}>
+              📝 Remarks: {order.remarks || 'None'}
+            </Text>
+
+            {order.status !== 'Completed' && (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleMarkDelivered(order.id)}
+              >
+                <Text style={styles.buttonText}>Mark as Delivered</Text>
+              </TouchableOpacity>
+            )}
           </View>
-
-          <Text style={styles.business}>🏢 {order.business}</Text>
-          <Text style={styles.section}>👤 {order.customer.name} - {order.customer.phone}</Text>
-          <Text style={styles.section}>📍 {order.deliveryAddress}</Text>
-          <Text style={styles.section}>🕒 Ordered: {order.orderTime} | ETA: {order.eta}</Text>
-          <Text style={styles.section}>💳 Payment: {order.paymentMethod}</Text>
-          <Text style={styles.section}>✅ Payment Collected: {order.paymentCollected ? 'Yes' : 'No'}</Text>
-
-          <Text style={styles.itemsTitle}>🛒 Order Items:</Text>
-          {order.items.map(item => (
-            <Text key={item.id} style={styles.item}>• {item.name} x{item.quantity} = ₹{item.unitPrice * item.quantity}</Text>
-          ))}
-
-          <Text style={styles.total}>💰 Total Amount: ₹{order.totalAmount}</Text>
-          <Text style={styles.remarks}>📝 Remarks: {order.remarks || 'None'}</Text>
-
-          {order.status !== 'Completed' && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => handleMarkDelivered(order.id)}
-            >
-              <Text style={styles.buttonText}>Mark as Delivered</Text>
-            </TouchableOpacity>
-          )}
         </View>
       ))}
+
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: theme.colors.error,
+            paddingVertical: 12,
+            paddingHorizontal: 16,
+            borderRadius: 8,
+            alignItems: 'center',
+            width: '100%',
+          }}
+          onPress={handleLogout}
+        >
+          <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
+            Logout
+          </Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -214,6 +280,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 15,
+  },
+  logoutContainer: {
+    padding: 16,
+    alignItems: 'center',
   },
 });
 

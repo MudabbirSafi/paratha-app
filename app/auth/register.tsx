@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -23,7 +23,7 @@ import { Mail, Lock, User, Phone, MapPin } from 'lucide-react-native';
 
 export default function RegisterScreen() {
   const { theme } = useThemeStore();
-  const { register, isLoading } = useAuthStore();
+  const { registerCustomer, isLoading, error, clearError } = useAuthStore();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,7 +37,14 @@ export default function RegisterScreen() {
   const [mobileError, setMobileError] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null);
+
+  // Clear error when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const validateMobile = (value: string) => {
     if (!value) return 'Mobile number is required';
@@ -57,7 +64,10 @@ export default function RegisterScreen() {
     const mobileValidationError = validateMobile(mobile);
     const addressValidationError = validateAddress(address);
     const passwordValidationError = validatePassword(password);
-    const confirmPasswordValidationError = validatePasswordMatch(password, confirmPassword);
+    const confirmPasswordValidationError = validatePasswordMatch(
+      password,
+      confirmPassword
+    );
 
     setNameError(nameValidationError);
     setEmailError(emailValidationError);
@@ -66,17 +76,28 @@ export default function RegisterScreen() {
     setPasswordError(passwordValidationError);
     setConfirmPasswordError(confirmPasswordValidationError);
 
-    return !nameValidationError &&
+    return (
+      !nameValidationError &&
       !emailValidationError &&
       !mobileValidationError &&
       !addressValidationError &&
       !passwordValidationError &&
-      !confirmPasswordValidationError;
+      !confirmPasswordValidationError
+    );
   };
 
   const handleRegister = async () => {
     if (!validateForm()) return;
-    const success = await register(name, email, password); // Extend registration as needed
+
+    const registerData = {
+      name,
+      email,
+      password,
+      phone: mobile,
+      address: [address],
+    };
+
+    const success = await registerCustomer(registerData);
     if (success) {
       router.replace('/(tabs)');
     }
@@ -99,27 +120,56 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.colors.text, fontFamily: 'Poppins-Bold' }]}>
-            Create Account
+          <Text
+            style={[
+              styles.title,
+              { color: theme.colors.text, fontWeight: '700' },
+            ]}
+          >
+            Create Customer Account
           </Text>
           <Text
-            style={[styles.subtitle, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}
+            style={[
+              styles.subtitle,
+              {
+                color: theme.colors.textSecondary,
+              },
+            ]}
           >
             Sign up to enjoy delicious fast food
           </Text>
         </View>
 
         <View style={styles.form}>
+          {error && (
+            <View
+              style={[
+                styles.errorContainer,
+                { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.errorText,
+                  { color: theme.colors.error, fontWeight: '500' },
+                ]}
+              >
+                {error}
+              </Text>
+            </View>
+          )}
+
           <Input
             label="Full Name"
             value={name}
             onChangeText={(text) => {
               setName(text);
               setNameError(null);
+              clearError();
             }}
             placeholder="Your full name"
             autoCapitalize="words"
-            error={nameError}
+            error={nameError || undefined}
             leftIcon={<User size={20} color={theme.colors.icon} />}
           />
 
@@ -129,11 +179,12 @@ export default function RegisterScreen() {
             onChangeText={(text) => {
               setEmail(text);
               setEmailError(null);
+              clearError();
             }}
             placeholder="Your email address"
             keyboardType="email-address"
             autoCapitalize="none"
-            error={emailError}
+            error={emailError || undefined}
             leftIcon={<Mail size={20} color={theme.colors.icon} />}
           />
 
@@ -143,10 +194,11 @@ export default function RegisterScreen() {
             onChangeText={(text) => {
               setMobile(text);
               setMobileError(null);
+              clearError();
             }}
             placeholder="Your 10-digit mobile number"
             keyboardType="numeric"
-            error={mobileError}
+            error={mobileError || undefined}
             leftIcon={<Phone size={20} color={theme.colors.icon} />}
           />
 
@@ -156,10 +208,11 @@ export default function RegisterScreen() {
             onChangeText={(text) => {
               setAddress(text);
               setAddressError(null);
+              clearError();
             }}
             placeholder="Your address"
             multiline
-            error={addressError}
+            error={addressError || undefined}
             leftIcon={<MapPin size={20} color={theme.colors.icon} />}
           />
 
@@ -169,10 +222,11 @@ export default function RegisterScreen() {
             onChangeText={(text) => {
               setPassword(text);
               setPasswordError(null);
+              clearError();
             }}
             placeholder="Create a password"
             secureTextEntry
-            error={passwordError}
+            error={passwordError || undefined}
             leftIcon={<Lock size={20} color={theme.colors.icon} />}
           />
 
@@ -182,17 +236,17 @@ export default function RegisterScreen() {
             onChangeText={(text) => {
               setConfirmPassword(text);
               setConfirmPasswordError(null);
+              clearError();
             }}
             placeholder="Confirm your password"
             secureTextEntry
-            error={confirmPasswordError}
+            error={confirmPasswordError || undefined}
             leftIcon={<Lock size={20} color={theme.colors.icon} />}
           />
 
           <Button
             title="Register"
             onPress={handleRegister}
-            variant="primary"
             isLoading={isLoading}
             fullWidth
             style={styles.registerButton}
@@ -200,13 +254,24 @@ export default function RegisterScreen() {
 
           <View style={styles.loginContainer}>
             <Text
-              style={[styles.loginText, { color: theme.colors.secondaryText, fontFamily: 'Poppins-Regular' }]}
+              style={[
+                styles.loginText,
+                {
+                  color: theme.colors.textSecondary,
+                },
+              ]}
             >
               Already have an account?{' '}
             </Text>
             <TouchableOpacity onPress={navigateToLogin}>
               <Text
-                style={[styles.loginLink, { color: theme.colors.primary, fontFamily: 'Poppins-SemiBold' }]}
+                style={[
+                  styles.loginLink,
+                  {
+                    color: theme.colors.primary,
+                    fontWeight: '600',
+                  },
+                ]}
               >
                 Login
               </Text>
@@ -239,6 +304,15 @@ const styles = StyleSheet.create({
   },
   form: {
     width: '100%',
+  },
+  errorContainer: {
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 14,
+    textAlign: 'center',
   },
   registerButton: {
     marginTop: 12,

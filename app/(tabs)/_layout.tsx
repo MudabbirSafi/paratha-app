@@ -1,38 +1,13 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
-import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { useEffect } from 'react';
-import { SplashScreen } from 'expo-router';
 import { useThemeStore } from '@/store/themeStore';
 import { useCartStore } from '@/store/cartStore';
 import { Chrome as Home, Search, ShoppingBag, User } from 'lucide-react-native';
 
-// Prevent splash screen from auto-hiding
-SplashScreen.preventAutoHideAsync();
-
 export default function TabLayout() {
   const { theme } = useThemeStore();
   const { getItemCount } = useCartStore();
-  
-  const [fontsLoaded, fontError] = useFonts({
-    'Poppins-Regular': Poppins_400Regular,
-    'Poppins-Medium': Poppins_500Medium,
-    'Poppins-SemiBold': Poppins_600SemiBold,
-    'Poppins-Bold': Poppins_700Bold,
-  });
-  
-  // Hide splash screen once fonts are loaded
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
-  
-  // Return null to keep splash screen visible while fonts load
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
-  
+
   // Customize tab bar styles
   const tabBarStyle = {
     backgroundColor: theme.colors.background,
@@ -41,7 +16,7 @@ export default function TabLayout() {
     height: 60,
     paddingBottom: 8,
   };
-  
+
   const renderTabBarIcon = (
     iconName: React.ComponentType<any>,
     color: string,
@@ -50,9 +25,9 @@ export default function TabLayout() {
     const Icon = iconName;
     return <Icon size={size} color={color} />;
   };
-  
+
   const cartItemCount = getItemCount();
-  
+
   const renderCartIcon = (color: string) => (
     <View style={styles.cartIconContainer}>
       {renderTabBarIcon(ShoppingBag, color, 24)}
@@ -70,12 +45,12 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.secondaryText,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarStyle: tabBarStyle,
         headerShown: false,
         tabBarLabelStyle: {
-          fontFamily: 'Poppins-Medium',
           fontSize: 12,
+          fontWeight: '500',
         },
       }}
     >
@@ -107,7 +82,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => renderTabBarIcon(User, color, 24),
         }}
       />
-      
+
       {/* Hide product details from tab bar */}
       <Tabs.Screen
         name="product/[id]"

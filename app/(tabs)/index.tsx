@@ -124,7 +124,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.sectionTitle,
-              { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+              { color: theme.colors.text, fontWeight: '600' },
             ]}
           >
             Categories
@@ -152,7 +152,7 @@ export default function HomeScreen() {
             <Text
               style={[
                 styles.sectionTitle,
-                { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+                { color: theme.colors.text, fontWeight: '600' },
               ]}
             >
               Bestsellers
@@ -182,7 +182,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.sectionTitle,
-              { color: theme.colors.text, fontFamily: 'Poppins-SemiBold' },
+              { color: theme.colors.text, fontWeight: '600' },
             ]}
           >
             {selectedCategory
