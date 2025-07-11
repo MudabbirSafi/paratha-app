@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Input } from '@/components/ui/Input';
-import { mockUser, mockOrders } from '@/constants/mockData';
+import { mockUser, mockOrders } from '@/constants/MockData';
 import { formatDateTime } from '@/utils/formatUtils';
 
 import React, { useState, useEffect } from 'react';

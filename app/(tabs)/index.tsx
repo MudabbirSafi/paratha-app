@@ -17,7 +17,7 @@ import {
   mockProducts,
   mockCategories,
   mockPromotions,
-} from '@/constants/mockData';
+} from '@/constants/MockData';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { PromotionCard } from '@/components/ui/PromotionCard';
 import { CategoryButton } from '@/components/ui/CategoryButton';

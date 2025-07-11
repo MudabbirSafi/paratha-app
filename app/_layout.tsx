@@ -39,10 +39,10 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
         <Stack.Screen name="auth" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="(customer)" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
         <Stack.Screen name="business" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="(delivery)" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="(admin)" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="delivery" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="checkout" options={{ gestureEnabled: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style={isDarkMode ? 'light' : 'dark'} />

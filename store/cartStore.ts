@@ -1,5 +1,6 @@
+import { mockProducts } from '@/constants/MockData';
+
 import { create } from 'zustand';
-import { mockProducts } from '@/constants/mockData';
 
 export interface CartItem {
   id: string;

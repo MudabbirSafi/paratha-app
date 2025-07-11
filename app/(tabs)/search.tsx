@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
-import { mockProducts } from '@/constants/mockData';
+import { mockProducts } from '@/constants/MockData';
 import { Input } from '@/components/ui/Input';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { Search as SearchIcon, X } from 'lucide-react-native';

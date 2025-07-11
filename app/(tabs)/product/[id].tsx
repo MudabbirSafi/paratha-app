@@ -11,7 +11,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
 import { useCartStore } from '@/store/cartStore';
-import { mockProducts } from '@/constants/mockData';
+import { mockProducts } from '@/constants/MockData';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { showAddToCartNotification } from '@/utils/notifications';
@@ -92,16 +92,12 @@ export default function ProductScreen() {
             <Text style={[styles.rating, { color: theme.colors.text }]}>
               {product.rating.toFixed(1)}
             </Text>
-            <Text
-              style={[styles.reviews, { color: theme.colors.secondaryText }]}
-            >
+            <Text style={[styles.reviews, { color: theme.colors.secondary }]}>
               ({product.reviews} reviews)
             </Text>
           </View>
 
-          <Text
-            style={[styles.description, { color: theme.colors.secondaryText }]}
-          >
+          <Text style={[styles.description, { color: theme.colors.secondary }]}>
             {product.description}
           </Text>
 
@@ -136,7 +132,7 @@ export default function ProductScreen() {
                 <Text
                   style={[
                     styles.nutritionLabel,
-                    { color: theme.colors.secondaryText },
+                    { color: theme.colors.secondary },
                   ]}
                 >
                   Calories
@@ -151,7 +147,7 @@ export default function ProductScreen() {
                 <Text
                   style={[
                     styles.nutritionLabel,
-                    { color: theme.colors.secondaryText },
+                    { color: theme.colors.secondary },
                   ]}
                 >
                   Protein
@@ -166,7 +162,7 @@ export default function ProductScreen() {
                 <Text
                   style={[
                     styles.nutritionLabel,
-                    { color: theme.colors.secondaryText },
+                    { color: theme.colors.secondary },
                   ]}
                 >
                   Carbs
@@ -181,7 +177,7 @@ export default function ProductScreen() {
                 <Text
                   style={[
                     styles.nutritionLabel,
-                    { color: theme.colors.secondaryText },
+                    { color: theme.colors.secondary },
                   ]}
                 >
                   Fat
@@ -194,9 +190,7 @@ export default function ProductScreen() {
 
       <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
         <View style={styles.priceContainer}>
-          <Text
-            style={[styles.priceLabel, { color: theme.colors.secondaryText }]}
-          >
+          <Text style={[styles.priceLabel, { color: theme.colors.secondary }]}>
             Price
           </Text>
           <Text style={[styles.price, { color: theme.colors.text }]}>
