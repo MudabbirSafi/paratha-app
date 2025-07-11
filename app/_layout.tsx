@@ -1,10 +1,16 @@
-import React, { useEffect, useCallback } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
 import { useThemeStore } from '@/store/themeStore';
 import { useAuthStore } from '@/store/authStore';
+
+import React, { useEffect, useCallback } from 'react';
+
+import { Stack } from 'expo-router';
+
+import { StatusBar } from 'expo-status-bar';
+
+import { useFonts } from 'expo-font';
+
+import * as SplashScreen from 'expo-splash-screen';
+
 import { View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();

@@ -1,8 +1,11 @@
+import { LightTheme, DarkTheme } from '@/constants/Theme';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { Appearance, ColorSchemeName } from 'react-native';
-import { LightTheme, DarkTheme } from '@/constants/Theme';
 
 // Global Brand Colors
 export const BRAND_COLORS = {
@@ -15,6 +18,7 @@ export const BRAND_COLORS = {
   accent: '#FFC107', // Yellow - Accent color
   accentLight: '#FFD54F',
   accentDark: '#FF8F00',
+  dark: '#101827', // Dark blue-gray color
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
@@ -114,6 +118,7 @@ interface ThemeColors {
   accent: string;
   accentLight: string;
   accentDark: string;
+  dark: string;
 
   // Semantic Colors
   success: string;
@@ -170,11 +175,12 @@ const createTheme = (isDarkMode: boolean): Theme => {
       accent: BRAND_COLORS.accent,
       accentLight: BRAND_COLORS.accentLight,
       accentDark: BRAND_COLORS.accentDark,
+      dark: BRAND_COLORS.dark,
       success: BRAND_COLORS.success,
       warning: BRAND_COLORS.warning,
       error: BRAND_COLORS.error,
       info: BRAND_COLORS.info,
-      background: '#121212',
+      background: BRAND_COLORS.dark,
       surface: '#1E1E1E',
       card: '#2D2D2D',
       border: '#404040',
@@ -197,6 +203,7 @@ const createTheme = (isDarkMode: boolean): Theme => {
       accent: BRAND_COLORS.accent,
       accentLight: BRAND_COLORS.accentLight,
       accentDark: BRAND_COLORS.accentDark,
+      dark: BRAND_COLORS.dark,
       success: BRAND_COLORS.success,
       warning: BRAND_COLORS.warning,
       error: BRAND_COLORS.error,
