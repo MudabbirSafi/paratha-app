@@ -1,59 +1,68 @@
-import React from 'react';
-import {
-  StyleSheet,
-  View,
-  StyleProp,
-  ViewStyle,
-  TouchableOpacity,
-} from 'react-native';
 import { useThemeStore } from '@/store/themeStore';
+import { globalStyles } from '@/utils/styles';
+
+import React from 'react';
+
+import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 
 interface CardProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  onPress?: () => void;
-  elevation?: number;
+  variant?: 'default' | 'elevated' | 'outlined';
+  padding?: 'none' | 'small' | 'medium' | 'large';
 }
 
 export const Card: React.FC<CardProps> = ({
   children,
   style,
-  onPress,
-  elevation = 2,
+  variant = 'default',
+  padding = 'medium',
 }) => {
-  const { theme, isDarkMode } = useThemeStore();
-  
-  const cardStyles = [
-    styles.card,
-    {
+  const { theme } = useThemeStore();
+
+  const getCardStyle = (): ViewStyle => {
+    const baseStyle: ViewStyle = {
       backgroundColor: theme.colors.card,
-      shadowOpacity: isDarkMode ? 0.3 : 0.1,
-      shadowRadius: elevation,
-      elevation: elevation,
-    },
-    style,
-  ];
+      borderRadius: theme.borderRadius.lg,
+    };
 
-  if (onPress) {
-    return (
-      <TouchableOpacity 
-        style={cardStyles} 
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
-        {children}
-      </TouchableOpacity>
-    );
-  }
+    // Variant styles
+    const variantStyles: Record<string, ViewStyle> = {
+      default: {
+        ...globalStyles.shadows.sm,
+      },
+      elevated: {
+        ...globalStyles.shadows.lg,
+      },
+      outlined: {
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+      },
+    };
 
-  return <View style={cardStyles}>{children}</View>;
+    // Padding styles
+    const paddingStyles: Record<string, ViewStyle> = {
+      none: {},
+      small: {
+        padding: theme.spacing.sm,
+      },
+      medium: {
+        padding: theme.spacing.md,
+      },
+      large: {
+        padding: theme.spacing.lg,
+      },
+    };
+
+    const flattenedStyle = StyleSheet.flatten(style);
+
+    return {
+      ...baseStyle,
+      ...variantStyles[variant],
+      ...paddingStyles[padding],
+      ...flattenedStyle,
+    };
+  };
+
+  return <View style={getCardStyle()}>{children}</View>;
 };
-
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-  },
-});

@@ -11,7 +11,15 @@ import { ShoppingBag } from 'lucide-react-native';
 
 export default function CartScreen() {
   const { theme } = useThemeStore() || { theme: null };
-  const { items = [], getSubtotal, clearCart } = useCartStore() || { items: [], getSubtotal: () => 0, clearCart: () => { } };
+  const {
+    items = [],
+    getSubtotal,
+    clearCart,
+  } = useCartStore() || {
+    items: [],
+    getSubtotal: () => 0,
+    clearCart: () => {},
+  };
 
   // Safe check for getSubtotal
   const subtotal = typeof getSubtotal === 'function' ? getSubtotal() : 0;
@@ -35,24 +43,44 @@ export default function CartScreen() {
 
   if (!items || items.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme?.colors?.background }]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: theme?.colors?.background },
+        ]}
+      >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme?.colors?.text, fontFamily: 'Poppins-Bold' }]}>
+          <Text
+            style={[
+              styles.title,
+              { color: theme?.colors?.text, fontWeight: '700' },
+            ]}
+          >
             Cart
           </Text>
         </View>
 
         <View style={styles.emptyContainer}>
-          <ShoppingBag size={80} color={theme?.colors?.secondaryText} />
-          <Text style={[styles.emptyText, { color: theme?.colors?.text, fontFamily: 'Poppins-Bold' }]}>
+          <ShoppingBag size={80} color={theme?.colors?.textSecondary} />
+          <Text
+            style={[
+              styles.emptyText,
+              { color: theme?.colors?.text, fontWeight: '700' },
+            ]}
+          >
             Your cart is empty
           </Text>
-          <Text style={[styles.emptySubtext, { color: theme?.colors?.secondaryText, fontFamily: 'Poppins-Regular' }]}>
-            Looks like you haven't added anything to your cart yet.
+          <Text
+            style={[
+              styles.emptySubtext,
+              { color: theme?.colors?.textSecondary, fontWeight: '400' },
+            ]}
+          >
+            Add some delicious parathas to get started
           </Text>
           <Button
             title="Start Shopping"
-            onPress={() => router.push('/(tabs)/')}
+            onPress={() => router.push('/(tabs)')}
             variant="primary"
             style={styles.startShoppingButton}
           />
@@ -62,68 +90,139 @@ export default function CartScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme?.colors?.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme?.colors?.background }]}
+    >
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme?.colors?.text, fontFamily: 'Poppins-Bold' }]}>
+        <Text
+          style={[
+            styles.title,
+            { color: theme?.colors?.text, fontWeight: '700' },
+          ]}
+        >
           Cart
         </Text>
         <Button
           title="Clear Cart"
           onPress={clearCart}
           variant="ghost"
-          size="sm"
+          size="small"
         />
       </View>
 
       <ScrollView style={styles.scrollContainer}>
-        <View style={[styles.itemsContainer, { borderTopColor: theme?.colors?.border }]}>
+        <View
+          style={[
+            styles.itemsContainer,
+            { borderTopColor: theme?.colors?.border },
+          ]}
+        >
           {items.map((item) => (
             <CartItem key={item.id} item={item} />
           ))}
         </View>
 
-        <View style={[styles.summary, { backgroundColor: theme?.isDarkMode ? theme?.colors?.card : theme?.colors?.neutral?.[50] }]}>
-          <Text style={[styles.summaryTitle, { color: theme?.colors?.text, fontFamily: 'Poppins-SemiBold' }]}>
+        <View
+          style={[
+            styles.summary,
+            {
+              backgroundColor: theme?.colors?.card,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.summaryTitle,
+              { color: theme?.colors?.text, fontWeight: '600' },
+            ]}
+          >
             Order Summary
           </Text>
 
           <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: theme?.colors?.secondaryText, fontFamily: 'Poppins-Regular' }]}>
+            <Text
+              style={[
+                styles.summaryLabel,
+                { color: theme?.colors?.textSecondary, fontWeight: '400' },
+              ]}
+            >
               Subtotal
             </Text>
-            <Text style={[styles.summaryValue, { color: theme?.colors?.text, fontFamily: 'Poppins-Medium' }]}>
+            <Text
+              style={[
+                styles.summaryValue,
+                { color: theme?.colors?.text, fontWeight: '500' },
+              ]}
+            >
               {formatCurrency(subtotal)}
             </Text>
           </View>
 
           <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: theme?.colors?.secondaryText, fontFamily: 'Poppins-Regular' }]}>
+            <Text
+              style={[
+                styles.summaryLabel,
+                { color: theme?.colors?.textSecondary, fontWeight: '400' },
+              ]}
+            >
               Delivery Fee
             </Text>
-            <Text style={[styles.summaryValue, { color: theme?.colors?.text, fontFamily: 'Poppins-Medium' }]}>
+            <Text
+              style={[
+                styles.summaryValue,
+                { color: theme?.colors?.text, fontWeight: '500' },
+              ]}
+            >
               {formatCurrency(deliveryFee)}
             </Text>
           </View>
 
-          <View style={[styles.divider, { backgroundColor: theme?.colors?.border }]} />
+          <View
+            style={[styles.divider, { backgroundColor: theme?.colors?.border }]}
+          />
 
           <View style={styles.summaryRow}>
-            <Text style={[styles.totalLabel, { color: theme?.colors?.text, fontFamily: 'Poppins-SemiBold' }]}>
+            <Text
+              style={[
+                styles.totalLabel,
+                { color: theme?.colors?.text, fontWeight: '600' },
+              ]}
+            >
               Total
             </Text>
-            <Text style={[styles.totalValue, { color: theme?.colors?.primary, fontFamily: 'Poppins-Bold' }]}>
+            <Text
+              style={[
+                styles.totalValue,
+                { color: theme?.colors?.primary, fontWeight: '700' },
+              ]}
+            >
               {formatCurrency(total)}
             </Text>
           </View>
         </View>
       </ScrollView>
 
-      <View style={[styles.checkoutContainer, { borderTopColor: theme?.colors?.border }]}>
+      <View
+        style={[
+          styles.checkoutContainer,
+          { borderTopColor: theme?.colors?.border },
+        ]}
+      >
         <View style={styles.priceContainer}>
-          <Text style={[styles.priceLabel, { color: theme?.colors?.secondaryText, fontFamily: 'Poppins-Regular' }]}>
+          <Text
+            style={[
+              styles.priceLabel,
+              { color: theme?.colors?.textSecondary, fontWeight: '400' },
+            ]}
+          >
             Total
           </Text>
-          <Text style={[styles.priceValue, { color: theme?.colors?.text, fontFamily: 'Poppins-Bold' }]}>
+          <Text
+            style={[
+              styles.priceValue,
+              { color: theme?.colors?.text, fontWeight: '500' },
+            ]}
+          >
             {formatCurrency(total)}
           </Text>
         </View>

@@ -25,18 +25,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { theme } = useThemeStore();
   const { addItem } = useCartStore();
-  
+
   const handlePress = () => {
     router.push(`/product/${id}`);
   };
-  
+
   const handleAddToCart = (e: any) => {
     e.stopPropagation();
     addItem(id);
   };
-  
+
   return (
-    <Card 
+    <Card
       style={styles.card}
       onPress={handlePress}
       elevation={3}
@@ -53,29 +53,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </View>
         )}
       </View>
-      
+
       <View style={styles.content}>
-        <Text 
-          style={[styles.name, { color: theme.colors.text }]} 
+        <Text
+          style={[styles.name, { color: theme.colors.text }]}
           numberOfLines={1}
         >
           {name}
         </Text>
-        
+
         <View style={styles.ratingContainer}>
           <Star size={16} color={theme.colors.secondary} fill={theme.colors.secondary} />
           <Text style={[styles.rating, { color: theme.colors.secondaryText }]}>
             {rating.toFixed(1)}
           </Text>
         </View>
-        
+
         <View style={styles.footer}>
           <Text style={[styles.price, { color: theme.colors.text }]}>
-            ${price.toFixed(2)}
+            ₹{price.toFixed(2)}
           </Text>
-          
-          <TouchableOpacity 
-            style={[styles.addButton, { backgroundColor: theme.colors.primary }]} 
+
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
             onPress={handleAddToCart}
           >
             <Plus size={16} color="white" />

@@ -1,183 +1,213 @@
 import React, { useState } from 'react';
 import {
-  StyleSheet,
-  TextInput,
   View,
+  TextInput,
   Text,
   TouchableOpacity,
-  StyleProp,
+  StyleSheet,
   ViewStyle,
   TextStyle,
-  KeyboardTypeOptions,
+  Platform,
 } from 'react-native';
 import { useThemeStore } from '@/store/themeStore';
+import { globalStyles } from '@/utils/styles';
 import { Eye, EyeOff } from 'lucide-react-native';
 
 interface InputProps {
+  label?: string;
+  placeholder?: string;
   value: string;
   onChangeText: (text: string) => void;
-  placeholder?: string;
-  label?: string;
-  error?: string;
   secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  keyboardType?: KeyboardTypeOptions;
   multiline?: boolean;
   numberOfLines?: number;
-  style?: StyleProp<ViewStyle>;
-  inputStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
+  error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  style?: ViewStyle;
+  inputStyle?: TextStyle;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export const Input: React.FC<InputProps> = ({
+  label,
+  placeholder,
   value,
   onChangeText,
-  placeholder,
-  label,
-  error,
   secureTextEntry = false,
-  autoCapitalize = 'none',
   keyboardType = 'default',
+  autoCapitalize = 'sentences',
   multiline = false,
   numberOfLines = 1,
-  style,
-  inputStyle,
   disabled = false,
+  error,
   leftIcon,
   rightIcon,
+  style,
+  inputStyle,
+  onFocus,
+  onBlur,
 }) => {
   const { theme } = useThemeStore();
   const [isFocused, setIsFocused] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(!secureTextEntry);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const containerStyles = [
-    styles.container,
-    {
-      borderColor: error 
-        ? theme.colors.error 
-        : isFocused 
-          ? theme.colors.primary 
-          : theme.colors.border,
-    },
-    style,
-  ];
+  const handleFocus = () => {
+    setIsFocused(true);
+    onFocus?.();
+  };
 
-  const inputStyles = [
-    styles.input,
-    {
-      color: theme.colors.text,
-    },
-    leftIcon && styles.inputWithLeftIcon,
-    (rightIcon || secureTextEntry) && styles.inputWithRightIcon,
-    multiline && styles.multilineInput,
-    disabled && { opacity: 0.6 },
-    inputStyle,
-  ];
+  const handleBlur = () => {
+    setIsFocused(false);
+    onBlur?.();
+  };
 
   const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
+    setShowPassword(!showPassword);
+  };
+
+  const getContainerStyle = (): ViewStyle => {
+    const baseStyle: ViewStyle = {
+      marginBottom: theme.spacing.md,
+    };
+
+    return {
+      ...baseStyle,
+      ...style,
+    };
+  };
+
+  const getInputContainerStyle = (): ViewStyle => {
+    const baseStyle: ViewStyle = {
+      flexDirection: 'row',
+      alignItems: multiline ? 'flex-start' : 'center',
+      borderWidth: 1,
+      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.card,
+      minHeight: multiline ? 80 : 48,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: multiline ? theme.spacing.sm : 0,
+    };
+
+    // Get global input configuration
+    const inputConfig = globalStyles.components.inputConfig;
+
+    // Border color based on state and global config
+    let borderColor = 'transparent';
+    if (error && inputConfig.showErrorBorder) {
+      borderColor = theme.colors.error;
+    }
+
+    // Disabled state
+    const disabledStyle: ViewStyle = disabled
+      ? {
+          backgroundColor: theme.colors.surface,
+          opacity: 0.6,
+        }
+      : {};
+
+    return {
+      ...baseStyle,
+      borderColor,
+      ...disabledStyle,
+    };
+  };
+
+  const getInputStyle = (): TextStyle => {
+    const baseStyle: TextStyle = {
+      flex: 1,
+      ...globalStyles.typography.body1,
+      color: theme.colors.text,
+      textAlignVertical: multiline ? 'top' : 'center',
+    };
+
+    // Disabled text style
+    const disabledTextStyle: TextStyle = disabled
+      ? {
+          color: theme.colors.textSecondary,
+        }
+      : {};
+
+    // Web-specific style to remove default outline
+    const webStyle = Platform.OS === 'web' ? { outline: 'transparent' } : {};
+
+    return {
+      ...baseStyle,
+      ...disabledTextStyle,
+      ...inputStyle,
+      ...(webStyle as any),
+    };
+  };
+
+  const getLabelStyle = (): TextStyle => {
+    return {
+      ...globalStyles.typography.label,
+      color: error ? theme.colors.error : theme.colors.text,
+      marginBottom: theme.spacing.xs,
+    };
+  };
+
+  const getErrorStyle = (): TextStyle => {
+    return {
+      ...globalStyles.typography.caption,
+      color: theme.colors.error,
+      marginTop: theme.spacing.xs,
+    };
+  };
+
+  const getIconStyle = (): ViewStyle => {
+    return {
+      marginHorizontal: theme.spacing.sm,
+    };
   };
 
   return (
-    <View style={styles.wrapper}>
-      {label && (
-        <Text 
-          style={[
-            styles.label, 
-            { color: theme.colors.secondaryText }
-          ]}
-        >
-          {label}
-        </Text>
-      )}
-      
-      <View style={containerStyles}>
-        {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-        
+    <View style={getContainerStyle()}>
+      {label && <Text style={getLabelStyle()}>{label}</Text>}
+
+      <View style={getInputContainerStyle()}>
+        {leftIcon && <View style={getIconStyle()}>{leftIcon}</View>}
+
         <TextInput
+          style={getInputStyle()}
+          placeholder={placeholder}
+          placeholderTextColor={theme.colors.textTertiary}
           value={value}
           onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={theme.colors.secondaryText}
-          style={inputStyles}
-          secureTextEntry={secureTextEntry && !isPasswordVisible}
-          autoCapitalize={autoCapitalize}
+          secureTextEntry={secureTextEntry && !showPassword}
           keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
           multiline={multiline}
           numberOfLines={numberOfLines}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
           editable={!disabled}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
-        
-        {secureTextEntry ? (
-          <TouchableOpacity 
-            style={styles.rightIcon} 
+
+        {secureTextEntry && (
+          <TouchableOpacity
+            style={getIconStyle()}
             onPress={togglePasswordVisibility}
+            activeOpacity={0.7}
           >
-            {isPasswordVisible ? (
-              <Eye color={theme.colors.icon} size={20} />
+            {showPassword ? (
+              <EyeOff size={20} color={theme.colors.iconSecondary} />
             ) : (
-              <EyeOff color={theme.colors.icon} size={20} />
+              <Eye size={20} color={theme.colors.iconSecondary} />
             )}
           </TouchableOpacity>
-        ) : rightIcon ? (
-          <View style={styles.rightIcon}>{rightIcon}</View>
-        ) : null}
+        )}
+
+        {rightIcon && !secureTextEntry && (
+          <View style={getIconStyle()}>{rightIcon}</View>
+        )}
       </View>
-      
-      {error && (
-        <Text style={[styles.error, { color: theme.colors.error }]}>
-          {error}
-        </Text>
-      )}
+
+      {error && <Text style={getErrorStyle()}>{error}</Text>}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: 16,
-  },
-  container: {
-    borderWidth: 1,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  label: {
-    marginBottom: 6,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    minHeight: 48,
-  },
-  inputWithLeftIcon: {
-    paddingLeft: 8,
-  },
-  inputWithRightIcon: {
-    paddingRight: 8,
-  },
-  multilineInput: {
-    paddingTop: 12,
-    textAlignVertical: 'top',
-  },
-  leftIcon: {
-    paddingLeft: 12,
-  },
-  rightIcon: {
-    paddingRight: 12,
-  },
-  error: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-});

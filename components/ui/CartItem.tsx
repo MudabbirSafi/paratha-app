@@ -9,13 +9,13 @@ interface CartItemProps {
 }
 
 export const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { theme } = useThemeStore();
+  const { theme, isDarkMode } = useThemeStore();
   const { updateQuantity, removeItem } = useCartStore();
-  
+
   const handleIncrease = () => {
     updateQuantity(item.id, item.quantity + 1);
   };
-  
+
   const handleDecrease = () => {
     if (item.quantity > 1) {
       updateQuantity(item.id, item.quantity - 1);
@@ -23,42 +23,43 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
       removeItem(item.id);
     }
   };
-  
+
   const handleRemove = () => {
     removeItem(item.id);
   };
-  
+
   return (
-    <View 
-      style={[
-        styles.container, 
-        { borderBottomColor: theme.colors.border }
-      ]}
+    <View
+      style={[styles.container, { borderBottomColor: theme.colors.border }]}
     >
-      <Image 
-        source={{ uri: item.image }} 
-        style={styles.image} 
+      <Image
+        source={{ uri: item.image }}
+        style={styles.image}
         resizeMode="cover"
       />
-      
+
       <View style={styles.content}>
-        <Text 
+        <Text
           style={[styles.name, { color: theme.colors.text }]}
           numberOfLines={1}
         >
           {item.name}
         </Text>
-        
+
         <Text style={[styles.price, { color: theme.colors.secondaryText }]}>
-          ${item.price.toFixed(2)}
+          ₹{item.price.toFixed(2)}
         </Text>
-        
+
         <View style={styles.actions}>
           <View style={styles.quantityContainer}>
             <TouchableOpacity
               style={[
                 styles.quantityButton,
-                { backgroundColor: theme.isDarkMode ? theme.colors.card : theme.colors.neutral?.[100] || theme.colors.border }
+                {
+                  backgroundColor: isDarkMode
+                    ? theme.colors.card
+                    : theme.colors.border,
+                },
               ]}
               onPress={handleDecrease}
             >
@@ -68,24 +69,28 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
                 <Minus size={16} color={theme.colors.primary} />
               )}
             </TouchableOpacity>
-            
+
             <Text style={[styles.quantity, { color: theme.colors.text }]}>
               {item.quantity}
             </Text>
-            
+
             <TouchableOpacity
               style={[
                 styles.quantityButton,
-                { backgroundColor: theme.isDarkMode ? theme.colors.card : theme.colors.neutral?.[100] || theme.colors.border }
+                {
+                  backgroundColor: isDarkMode
+                    ? theme.colors.card
+                    : theme.colors.border,
+                },
               ]}
               onPress={handleIncrease}
             >
               <Plus size={16} color={theme.colors.primary} />
             </TouchableOpacity>
           </View>
-          
+
           <Text style={[styles.totalPrice, { color: theme.colors.text }]}>
-            ${(item.price * item.quantity).toFixed(2)}
+            ₹{(item.price * item.quantity).toFixed(2)}
           </Text>
         </View>
       </View>

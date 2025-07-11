@@ -1,100 +1,116 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
 import { useCartStore } from '@/store/cartStore';
-import { products } from '@/constants/MockData';
+import { mockProducts } from '@/constants/mockData';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { showAddToCartNotification } from '@/utils/notifications';
 import { Star, Minus, Plus, ChevronLeft } from 'lucide-react-native';
+import { Product } from '@/types';
 
 export default function ProductScreen() {
   const { id } = useLocalSearchParams();
   const { theme } = useThemeStore();
   const { addItem } = useCartStore();
-  
+
   const [quantity, setQuantity] = useState(1);
-  
-  const product = products.find(p => p.id === id);
-  
+
+  const product = mockProducts.find((p: Product) => p.id === id);
+
   if (!product) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           Product not found
         </Text>
       </SafeAreaView>
     );
   }
-  
+
   const handleQuantityChange = (delta: number) => {
-    setQuantity(prev => Math.max(1, prev + delta));
+    setQuantity((prev) => Math.max(1, prev + delta));
   };
-  
+
   const handleAddToCart = async () => {
     addItem(product.id, quantity);
     await showAddToCartNotification(product.name);
   };
-  
+
   const handleBuyNow = () => {
     addItem(product.id, quantity);
     router.push('/checkout');
   };
-  
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => router.back()}
             style={[styles.backButton, { backgroundColor: theme.colors.card }]}
           >
             <ChevronLeft size={24} color={theme.colors.text} />
           </TouchableOpacity>
         </View>
-        
-        <Image 
-          source={{ uri: product.image }} 
+
+        <Image
+          source={{ uri: product.image }}
           style={styles.image}
           resizeMode="cover"
         />
-        
+
         <View style={styles.content}>
           <View style={styles.titleContainer}>
             <Text style={[styles.name, { color: theme.colors.text }]}>
               {product.name}
             </Text>
             {product.isBestseller && (
-              <Badge 
-                label="Bestseller" 
-                variant="secondary" 
-                size="sm"
-              />
+              <Badge label="Bestseller" variant="secondary" size="sm" />
             )}
           </View>
-          
+
           <View style={styles.ratingContainer}>
-            <Star size={20} color={theme.colors.secondary} fill={theme.colors.secondary} />
+            <Star
+              size={20}
+              color={theme.colors.secondary}
+              fill={theme.colors.secondary}
+            />
             <Text style={[styles.rating, { color: theme.colors.text }]}>
               {product.rating.toFixed(1)}
             </Text>
-            <Text style={[styles.reviews, { color: theme.colors.secondaryText }]}>
+            <Text
+              style={[styles.reviews, { color: theme.colors.secondaryText }]}
+            >
               ({product.reviews} reviews)
             </Text>
           </View>
-          
-          <Text style={[styles.description, { color: theme.colors.secondaryText }]}>
+
+          <Text
+            style={[styles.description, { color: theme.colors.secondaryText }]}
+          >
             {product.description}
           </Text>
-          
+
           <View style={[styles.section, { borderColor: theme.colors.border }]}>
             <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
               Ingredients
             </Text>
             <View style={styles.ingredients}>
-              {product.ingredients.map((ingredient, index) => (
+              {product.ingredients.map((ingredient: string, index: number) => (
                 <Badge
                   key={index}
                   label={ingredient}
@@ -105,41 +121,69 @@ export default function ProductScreen() {
               ))}
             </View>
           </View>
-          
+
           <View style={[styles.section, { borderColor: theme.colors.border }]}>
             <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
               Nutrition Information
             </Text>
             <View style={styles.nutritionGrid}>
               <View style={styles.nutritionItem}>
-                <Text style={[styles.nutritionValue, { color: theme.colors.text }]}>
+                <Text
+                  style={[styles.nutritionValue, { color: theme.colors.text }]}
+                >
                   {product.nutritionInfo.calories}
                 </Text>
-                <Text style={[styles.nutritionLabel, { color: theme.colors.secondaryText }]}>
+                <Text
+                  style={[
+                    styles.nutritionLabel,
+                    { color: theme.colors.secondaryText },
+                  ]}
+                >
                   Calories
                 </Text>
               </View>
               <View style={styles.nutritionItem}>
-                <Text style={[styles.nutritionValue, { color: theme.colors.text }]}>
+                <Text
+                  style={[styles.nutritionValue, { color: theme.colors.text }]}
+                >
                   {product.nutritionInfo.protein}g
                 </Text>
-                <Text style={[styles.nutritionLabel, { color: theme.colors.secondaryText }]}>
+                <Text
+                  style={[
+                    styles.nutritionLabel,
+                    { color: theme.colors.secondaryText },
+                  ]}
+                >
                   Protein
                 </Text>
               </View>
               <View style={styles.nutritionItem}>
-                <Text style={[styles.nutritionValue, { color: theme.colors.text }]}>
+                <Text
+                  style={[styles.nutritionValue, { color: theme.colors.text }]}
+                >
                   {product.nutritionInfo.carbs}g
                 </Text>
-                <Text style={[styles.nutritionLabel, { color: theme.colors.secondaryText }]}>
+                <Text
+                  style={[
+                    styles.nutritionLabel,
+                    { color: theme.colors.secondaryText },
+                  ]}
+                >
                   Carbs
                 </Text>
               </View>
               <View style={styles.nutritionItem}>
-                <Text style={[styles.nutritionValue, { color: theme.colors.text }]}>
+                <Text
+                  style={[styles.nutritionValue, { color: theme.colors.text }]}
+                >
                   {product.nutritionInfo.fat}g
                 </Text>
-                <Text style={[styles.nutritionLabel, { color: theme.colors.secondaryText }]}>
+                <Text
+                  style={[
+                    styles.nutritionLabel,
+                    { color: theme.colors.secondaryText },
+                  ]}
+                >
                   Fat
                 </Text>
               </View>
@@ -147,37 +191,45 @@ export default function ProductScreen() {
           </View>
         </View>
       </ScrollView>
-      
+
       <View style={[styles.footer, { borderTopColor: theme.colors.border }]}>
         <View style={styles.priceContainer}>
-          <Text style={[styles.priceLabel, { color: theme.colors.secondaryText }]}>
+          <Text
+            style={[styles.priceLabel, { color: theme.colors.secondaryText }]}
+          >
             Price
           </Text>
           <Text style={[styles.price, { color: theme.colors.text }]}>
-            ${(product.price * quantity).toFixed(2)}
+            ₹{(product.price * quantity).toFixed(2)}
           </Text>
         </View>
-        
+
         <View style={styles.quantityContainer}>
           <TouchableOpacity
-            style={[styles.quantityButton, { backgroundColor: theme.colors.card }]}
+            style={[
+              styles.quantityButton,
+              { backgroundColor: theme.colors.card },
+            ]}
             onPress={() => handleQuantityChange(-1)}
           >
             <Minus size={20} color={theme.colors.text} />
           </TouchableOpacity>
-          
+
           <Text style={[styles.quantity, { color: theme.colors.text }]}>
             {quantity}
           </Text>
-          
+
           <TouchableOpacity
-            style={[styles.quantityButton, { backgroundColor: theme.colors.card }]}
+            style={[
+              styles.quantityButton,
+              { backgroundColor: theme.colors.card },
+            ]}
             onPress={() => handleQuantityChange(1)}
           >
             <Plus size={20} color={theme.colors.text} />
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.actionButtons}>
           <Button
             title="Add to Cart"

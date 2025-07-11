@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { products } from '@/constants/MockData';
+import { mockProducts } from '@/constants/mockData';
 
 export interface CartItem {
   id: string;
@@ -22,18 +22,18 @@ interface CartStore {
 
 export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
-  
+
   addItem: (productId: string, quantity = 1) => {
-    const product = products.find(p => p.id === productId);
+    const product = mockProducts.find(p => p.id === productId);
     if (!product) return;
-    
+
     set(state => {
       const existingItem = state.items.find(item => item.productId === productId);
-      
+
       if (existingItem) {
         return {
-          items: state.items.map(item => 
-            item.productId === productId 
+          items: state.items.map(item =>
+            item.productId === productId
               ? { ...item, quantity: item.quantity + quantity }
               : item
           ),
@@ -53,35 +53,35 @@ export const useCartStore = create<CartStore>((set, get) => ({
       }
     });
   },
-  
+
   removeItem: (itemId: string) => {
     set(state => ({
       items: state.items.filter(item => item.id !== itemId),
     }));
   },
-  
+
   updateQuantity: (itemId: string, quantity: number) => {
     if (quantity <= 0) {
       get().removeItem(itemId);
       return;
     }
-    
+
     set(state => ({
-      items: state.items.map(item => 
+      items: state.items.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       ),
     }));
   },
-  
+
   clearCart: () => set({ items: [] }),
-  
+
   getItemCount: () => {
     return get().items.reduce((total, item) => total + item.quantity, 0);
   },
-  
+
   getSubtotal: () => {
     return get().items.reduce(
-      (total, item) => total + item.price * item.quantity, 
+      (total, item) => total + item.price * item.quantity,
       0
     );
   }

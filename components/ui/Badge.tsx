@@ -21,9 +21,9 @@ export const Badge: React.FC<BadgeProps> = ({
   textStyle,
 }) => {
   const { theme } = useThemeStore();
-  
+
   const getBackgroundColor = () => {
-    switch(variant) {
+    switch (variant) {
       case 'primary': return theme.colors.primary;
       case 'secondary': return theme.colors.secondary;
       case 'success': return theme.colors.success;
@@ -32,20 +32,20 @@ export const Badge: React.FC<BadgeProps> = ({
       default: return theme.colors.primary;
     }
   };
-  
+
   const badgeStyles = [
     styles.badge,
     styles[`${size}Badge`],
     { backgroundColor: getBackgroundColor() },
     style,
   ];
-  
+
   const textStyles = [
     styles.text,
     styles[`${size}Text`],
     textStyle,
   ];
-  
+
   return (
     <View style={badgeStyles}>
       <Text style={textStyles}>{label}</Text>
