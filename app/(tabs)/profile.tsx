@@ -94,7 +94,9 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     console.log('Logout button pressed');
-    logout();
+    logout().catch((error) => {
+      console.error('Logout error:', error);
+    });
   };
 
   const themeOptions = [

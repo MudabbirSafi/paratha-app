@@ -1,6 +1,9 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+
 import { router } from 'expo-router';
+
 import { Alert } from 'react-native';
 
 // API Configuration
@@ -75,6 +78,23 @@ export const setAuthToken = async (token: string): Promise<void> => {
         await AsyncStorage.setItem('authToken', token);
     } catch (error) {
         console.error('Error setting auth token:', error);
+    }
+};
+
+export const getUserType = async (): Promise<string | null> => {
+    try {
+        return await AsyncStorage.getItem('userType');
+    } catch (error) {
+        console.error('Error getting user type:', error);
+        return null;
+    }
+};
+
+export const setUserType = async (userType: string): Promise<void> => {
+    try {
+        await AsyncStorage.setItem('userType', userType);
+    } catch (error) {
+        console.error('Error setting user type:', error);
     }
 };
 

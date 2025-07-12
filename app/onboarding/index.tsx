@@ -1,10 +1,22 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, Text, FlatList, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import { router } from 'expo-router';
 import { Image } from 'react-native';
 import { useThemeStore } from '@/store/themeStore';
 import { Button } from '@/components/ui/Button';
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -12,19 +24,22 @@ const onboardingData = [
   {
     id: '1',
     title: 'Fast Food Delivered Fast',
-    description: 'Order delicious fast food with just a few taps and have it delivered to your door in minutes.',
+    description:
+      'Order delicious fast food with just a few taps and have it delivered to your door in minutes.',
     image: 'https://images.pexels.com/photos/4393021/pexels-photo-4393021.jpeg',
   },
   {
     id: '2',
     title: 'Find Your Favorites',
-    description: 'Discover our wide selection of burgers, pizzas, and more. There\'s something for everyone!',
+    description:
+      "Discover our wide selection of burgers, pizzas, and more. There's something for everyone!",
     image: 'https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg',
   },
   {
     id: '3',
     title: 'Easy Ordering & Payment',
-    description: 'Simple checkout process and multiple payment options make ordering a breeze.',
+    description:
+      'Simple checkout process and multiple payment options make ordering a breeze.',
     image: 'https://images.pexels.com/photos/6697274/pexels-photo-6697274.jpeg',
   },
 ];
@@ -34,7 +49,7 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useSharedValue(0);
-  
+
   const handleNext = () => {
     if (currentIndex < onboardingData.length - 1) {
       flatListRef.current?.scrollToIndex({
@@ -46,12 +61,12 @@ export default function OnboardingScreen() {
       router.replace('/auth/login');
     }
   };
-  
+
   const handleSkip = () => {
     router.replace('/auth/login');
   };
-  
-  const renderItem = ({ item }: { item: typeof onboardingData[0] }) => (
+
+  const renderItem = ({ item }: { item: (typeof onboardingData)[0] }) => (
     <View style={styles.slide}>
       <Image
         source={{ uri: item.image }}
@@ -59,30 +74,33 @@ export default function OnboardingScreen() {
         resizeMode="cover"
       />
       <View style={styles.textContainer}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>{item.title}</Text>
-        <Text style={[styles.description, { color: theme.colors.secondaryText }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>
+          {item.title}
+        </Text>
+        <Text style={[styles.description, { color: theme.colors.secondary }]}>
           {item.description}
         </Text>
       </View>
     </View>
   );
-  
+
   const handleScroll = (event: any) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     scrollX.value = offsetX;
     const index = Math.round(offsetX / width);
     setCurrentIndex(index);
   };
-  
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <TouchableOpacity 
-        style={styles.skipButton} 
-        onPress={handleSkip}
-      >
-        <Text style={[styles.skipText, { color: theme.colors.primary }]}>Skip</Text>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+        <Text style={[styles.skipText, { color: theme.colors.primary }]}>
+          Skip
+        </Text>
       </TouchableOpacity>
-      
+
       <FlatList
         ref={flatListRef}
         data={onboardingData}
@@ -94,38 +112,38 @@ export default function OnboardingScreen() {
         scrollEventThrottle={16}
         keyExtractor={(item) => item.id}
       />
-      
+
       <View style={styles.footer}>
         <View style={styles.paginationContainer}>
           {onboardingData.map((_, index) => {
             const animatedDotStyle = useAnimatedStyle(() => {
               const inputRange = [
-                (index - 1) * width,
-                index * width,
-                (index + 1) * width,
+                (index - 1) * Dimensions.get('window').width,
+                index * Dimensions.get('window').width,
+                (index + 1) * Dimensions.get('window').width,
               ];
-              
+
               const width = interpolate(
                 scrollX.value,
                 inputRange,
                 [8, 20, 8],
                 'clamp'
               );
-              
+
               const opacity = interpolate(
                 scrollX.value,
                 inputRange,
                 [0.5, 1, 0.5],
                 'clamp'
               );
-              
+
               return {
                 width,
                 opacity,
                 backgroundColor: theme.colors.primary,
               };
             });
-            
+
             return (
               <Animated.View
                 key={index.toString()}
@@ -134,9 +152,11 @@ export default function OnboardingScreen() {
             );
           })}
         </View>
-        
+
         <Button
-          title={currentIndex === onboardingData.length - 1 ? "Get Started" : "Next"}
+          title={
+            currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'
+          }
           onPress={handleNext}
           variant="primary"
           style={styles.button}

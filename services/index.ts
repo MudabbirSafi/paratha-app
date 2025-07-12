@@ -1,6 +1,7 @@
 export { authService } from './authService';
 export { addressService } from './addressService';
 export { locationService } from './locationService';
+export { adminService } from './adminService';
 export type {
     LoginRequest,
     User,
@@ -19,4 +20,8 @@ export type {
 export type {
     LocationData,
     LocationPermission
-} from './locationService'; 
+} from './locationService';
+export type {
+    AdminUser,
+    UsersListResponse
+} from './adminService'; 

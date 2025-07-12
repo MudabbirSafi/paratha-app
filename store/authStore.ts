@@ -1,5 +1,5 @@
 import { authService, LoginRequest, User as ApiUser, Business, DeliveryPartner } from '@/services/authService';
-import { setAuthToken, getAuthToken, clearAuthToken } from '@/utils/api';
+import { setAuthToken, getAuthToken, clearAuthToken, setUserType } from '@/utils/api';
 
 import { create } from 'zustand';
 
@@ -45,7 +45,7 @@ interface AuthStore {
   registerCustomer: (data: Omit<User, 'id' | 'type'> & { password: string }) => Promise<boolean>;
   registerBusiness: (data: Business) => Promise<boolean>;
   registerDelivery: (data: DeliveryPartner) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   getProfile: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<boolean>;
   changePassword: (data: { currentPassword: string, newPassword: string }) => Promise<boolean>;
@@ -65,7 +65,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const token = await getAuthToken();
       if (token) {
         const response = await authService.getProfile();
-        debugger
         if (response.success && response.user) {
           const user = convertApiUserToStoreUser(response.user);
           set({
@@ -97,13 +96,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const response = await authService.login(loginData);
 
       if (response.success && response.token && response.user) {
-        // response.user is of type AuthResponse, so we need to access the user property within it
+        console.log(response)        // response.user is of type AuthResponse, so we need to access the user property within it
         const userData = (response.user as any).user || response.user;
         const user = convertApiUserToStoreUser(userData as ApiUser);
+        await setUserType(userData.role || 'customer');
+
 
         // Store the token
         await setAuthToken(response.token);
-        debugger
         set({
           user,
           isAuthenticated: true,
@@ -220,14 +220,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      debugger
+
       const response = await authService.registerDelivery(data);
 
       if (response.success && response.token && response.user) {
         // response.user is of type AuthResponse, so we need to access the user property within it
         const userData = (response.user as any).user || response.user;
         const user = convertApiUserToStoreUser(userData as ApiUser);
-
         // Store the token
+        console.log(userData.role)
         await setAuthToken(response.token);
 
         set({
@@ -247,6 +249,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         return false;
       }
     } catch (error: any) {
+      debugger
+
       set({
         isLoading: false,
         error: error.message || 'Registration failed'
@@ -344,8 +348,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     console.log('AuthStore logout called');
     try {
       console.log('Calling authService.logout()');
-      router.replace('/auth/login');
-      // await authService.logout();
+      await authService.logout();
       console.log('authService.logout() completed successfully');
     } catch (error) {
       console.log('Logout API call failed, but continuing with local logout:', error);
@@ -354,6 +357,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       await clearAuthToken();
       set({ user: null, isAuthenticated: false, userType: null });
       console.log('Logout completed - state cleared');
+      console.log('Navigating to login screen');
+      try {
+        router.replace('/auth/login');
+        console.log('Navigation completed');
+      } catch (navError) {
+        console.error('Navigation error:', navError);
+        // Try alternative navigation method
+        router.push('/auth/login');
+      }
     }
   },
 

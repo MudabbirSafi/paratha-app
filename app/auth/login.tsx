@@ -1,4 +1,12 @@
+import { useThemeStore } from '@/store/themeStore';
+import { useAuthStore, UserType } from '@/store/authStore';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { validateEmail } from '@/utils/validation';
+import { getUserType } from '@/utils/api';
+
 import React, { useState, useEffect } from 'react';
+
 import {
   StyleSheet,
   View,
@@ -8,17 +16,15 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+
 import { router } from 'expo-router';
-import { useThemeStore } from '@/store/themeStore';
-import { useAuthStore, UserType } from '@/store/authStore';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { validateEmail } from '@/utils/validation';
+
 import { Mail, Lock } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const { theme } = useThemeStore();
-  const { login, isLoading, error, clearError, userType } = useAuthStore();
+  const { login, isLoading, error, clearError, userType, getProfile } =
+    useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,12 +43,15 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
+    debugger;
     if (!validateForm()) return;
 
     const success = await login(email, password);
-    debugger;
+    const userRole = await getUserType();
     if (success) {
-      if (userType === 'delivery') {
+      if (userRole === 'admin') {
+        router.replace('/admin/users-list');
+      } else if (userRole === 'delivery') {
         router.replace('/delivery/DeliveryPartnerDashboard');
       } else {
         router.replace('/(tabs)');

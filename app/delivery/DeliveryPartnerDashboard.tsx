@@ -98,7 +98,9 @@ const DeliveryPartnerDashboard = () => {
   const handleLogout = () => {
     // Add logout logic here
     console.log('Logging out...');
-    logout();
+    logout().catch((error) => {
+      console.error('Logout error:', error);
+    });
     // You can add navigation to login screen or clear user session
   };
 
