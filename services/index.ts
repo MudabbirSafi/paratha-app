@@ -2,6 +2,7 @@ export { authService } from './authService';
 export { addressService } from './addressService';
 export { locationService } from './locationService';
 export { adminService } from './adminService';
+export { whatsappService } from './whatsappService';
 export type {
     LoginRequest,
     User,
@@ -24,4 +25,7 @@ export type {
 export type {
     AdminUser,
     UsersListResponse
-} from './adminService'; 
+} from './adminService';
+export type {
+    WhatsAppNotificationResponse
+} from './whatsappService'; 

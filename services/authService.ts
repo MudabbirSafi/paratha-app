@@ -1,4 +1,5 @@
 import api, { ApiResponse, handleApiError } from '@/utils/api';
+import { whatsappService } from './whatsappService';
 
 // Types based on the actual API documentation
 export interface LoginRequest {
@@ -74,6 +75,18 @@ class AuthService {
     async registerCustomer(data: Omit<User, 'id' | 'createdAt' | 'updatedAt'> & { password: string }): Promise<ApiResponse<AuthResponse>> {
         try {
             const response = await api.post('/api/auth/signup', data);
+
+            // Send WhatsApp notification after successful registration
+            if (response.data.user && response.data.user.phone) {
+                try {
+                    await whatsappService.sendRegistrationNotification(response.data.user.phone);
+                    console.log('WhatsApp notification sent for customer registration');
+                } catch (whatsappError) {
+                    console.error('Failed to send WhatsApp notification:', whatsappError);
+                    // Don't fail the registration if WhatsApp notification fails
+                }
+            }
+
             return {
                 success: true,
                 token: response.data.token,
@@ -89,6 +102,18 @@ class AuthService {
     async registerBusiness(data: Business): Promise<ApiResponse<AuthResponse>> {
         try {
             const response = await api.post('/api/auth/business/signup', data);
+
+            // Send WhatsApp notification after successful registration
+            if (response.data.user && response.data.user.phone) {
+                try {
+                    await whatsappService.sendRegistrationNotification(response.data.user.phone);
+                    console.log('WhatsApp notification sent for business registration');
+                } catch (whatsappError) {
+                    console.error('Failed to send WhatsApp notification:', whatsappError);
+                    // Don't fail the registration if WhatsApp notification fails
+                }
+            }
+
             return {
                 success: true,
                 token: response.data.token,
@@ -104,6 +129,18 @@ class AuthService {
     async registerDelivery(data: DeliveryPartner): Promise<ApiResponse<AuthResponse>> {
         try {
             const response = await api.post('/api/auth/delivery/signup', data);
+
+            // Send WhatsApp notification after successful registration
+            if (response.data.user && response.data.user.phone) {
+                try {
+                    await whatsappService.sendRegistrationNotification(response.data.user.phone);
+                    console.log('WhatsApp notification sent for delivery partner registration');
+                } catch (whatsappError) {
+                    console.error('Failed to send WhatsApp notification:', whatsappError);
+                    // Don't fail the registration if WhatsApp notification fails
+                }
+            }
+
             return {
                 success: true,
                 token: response.data.token,
