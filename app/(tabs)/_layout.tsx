@@ -2,7 +2,13 @@ import { Tabs } from 'expo-router';
 import { StyleSheet, View, Text } from 'react-native';
 import { useThemeStore } from '@/store/themeStore';
 import { useCartStore } from '@/store/cartStore';
-import { Chrome as Home, Search, ShoppingBag, User } from 'lucide-react-native';
+import {
+  Chrome as Home,
+  HomeIcon,
+  Search,
+  ShoppingBag,
+  User,
+} from 'lucide-react-native';
 
 export default function TabLayout() {
   const { theme } = useThemeStore();
@@ -58,7 +64,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => renderTabBarIcon(Home, color, 24),
+          tabBarIcon: ({ color }) => renderTabBarIcon(HomeIcon, color, 24),
         }}
       />
       <Tabs.Screen

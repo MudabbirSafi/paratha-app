@@ -234,10 +234,10 @@ const createTheme = (isDarkMode: boolean): Theme => {
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set, get) => ({
-      themeMode: 'system',
-      isDarkMode: Appearance.getColorScheme() === 'dark',
-      theme: createTheme(Appearance.getColorScheme() === 'dark'),
-      colorScheme: Appearance.getColorScheme(),
+      themeMode: 'dark',
+      isDarkMode: true,
+      theme: createTheme(true),
+      colorScheme: 'dark',
 
       setThemeMode: (mode) => {
         const systemScheme = Appearance.getColorScheme();

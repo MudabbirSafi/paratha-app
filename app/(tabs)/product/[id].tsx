@@ -1,4 +1,12 @@
+import { useThemeStore } from '@/store/themeStore';
+import { useCartStore } from '@/store/cartStore';
+import { mockProducts } from '@/constants/MockData';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Product } from '@/types';
+
 import React, { useState } from 'react';
+
 import {
   StyleSheet,
   View,
@@ -7,16 +15,12 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+
 import { useLocalSearchParams, router } from 'expo-router';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useThemeStore } from '@/store/themeStore';
-import { useCartStore } from '@/store/cartStore';
-import { mockProducts } from '@/constants/MockData';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { showAddToCartNotification } from '@/utils/notifications';
+
 import { Star, Minus, Plus, ChevronLeft } from 'lucide-react-native';
-import { Product } from '@/types';
 
 export default function ProductScreen() {
   const { id } = useLocalSearchParams();
@@ -45,7 +49,7 @@ export default function ProductScreen() {
 
   const handleAddToCart = async () => {
     addItem(product.id, quantity);
-    await showAddToCartNotification(product.name);
+    // await showAddToCartNotification(product.name);
   };
 
   const handleBuyNow = () => {

@@ -62,7 +62,7 @@ export default function RegisterScreen() {
     const nameValidationError = validateName(name);
     const emailValidationError = validateEmail(email);
     const mobileValidationError = validateMobile(mobile);
-    const addressValidationError = validateAddress(address);
+    // const addressValidationError = validateAddress(address);
     const passwordValidationError = validatePassword(password);
     const confirmPasswordValidationError = validatePasswordMatch(
       password,
@@ -72,7 +72,7 @@ export default function RegisterScreen() {
     setNameError(nameValidationError);
     setEmailError(emailValidationError);
     setMobileError(mobileValidationError);
-    setAddressError(addressValidationError);
+    // setAddressError(addressValidationError);
     setPasswordError(passwordValidationError);
     setConfirmPasswordError(confirmPasswordValidationError);
 
@@ -80,7 +80,7 @@ export default function RegisterScreen() {
       !nameValidationError &&
       !emailValidationError &&
       !mobileValidationError &&
-      !addressValidationError &&
+      // !addressValidationError &&
       !passwordValidationError &&
       !confirmPasswordValidationError
     );

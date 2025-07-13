@@ -22,6 +22,8 @@ import {
   Alert,
 } from 'react-native';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import {
   Search,
   Filter,
@@ -388,7 +390,7 @@ const UsersList = () => {
   }
 
   return (
-    <View
+    <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <View style={styles.header}>
@@ -540,7 +542,7 @@ const UsersList = () => {
       )}
 
       {/* Pagination removed since we're filtering locally */}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -656,6 +658,7 @@ const styles = StyleSheet.create({
     width: '35%',
     justifyContent: 'center',
     alignItems: 'center',
+    display: 'flex',
     opacity: 0.4,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
