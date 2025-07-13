@@ -1,4 +1,15 @@
-import React, { useState } from 'react';
+import { useThemeStore } from '@/store/themeStore';
+import { useAddressStore } from '@/store/addressStore';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import {
+  addressService,
+  CreateAddressRequest,
+} from '@/services/addressService';
+import { locationService, LocationData } from '@/services/locationService';
+
+import React, { useState, useEffect } from 'react';
+
 import {
   StyleSheet,
   View,
@@ -9,17 +20,11 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { router } from 'expo-router';
-import { useThemeStore } from '@/store/themeStore';
-import { useAddressStore } from '@/store/addressStore';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import {
-  addressService,
-  CreateAddressRequest,
-} from '@/services/addressService';
-import { locationService, LocationData } from '@/services/locationService';
+
 import {
   ArrowLeft,
   Home,
@@ -50,15 +55,28 @@ export default function AddressAddScreen() {
   const [stateError, setStateError] = useState<string | null>(null);
   const [zipCodeError, setZipCodeError] = useState<string | null>(null);
 
+  // Auto-detect location when component mounts
+  useEffect(() => {
+    const autoDetectLocation = async () => {
+      try {
+        const locationData =
+          await locationService.getCurrentLocationWithAddress();
+        setLatitude(locationData.latitude.toFixed(8));
+        setLongitude(locationData.longitude.toFixed(8));
+      } catch (error: any) {
+        console.log('Auto location detection failed:', error.message);
+        // Don't show error alert for auto-detection, just log it
+      }
+    };
+
+    autoDetectLocation();
+  }, []);
+
   const validateForm = () => {
     let isValid = true;
 
-    if (!address.trim()) {
-      setAddressError('Address is required');
-      isValid = false;
-    } else {
-      setAddressError(null);
-    }
+    // Make street address optional - remove validation
+    setAddressError(null);
 
     if (!city.trim()) {
       setCityError('City is required');
@@ -97,8 +115,12 @@ export default function AddressAddScreen() {
       setCity(locationData.city || '');
       setState(locationData.state || '');
       setZipCode(locationData.zipCode || '');
-      setLatitude(locationData.latitude.toString());
-      setLongitude(locationData.longitude.toString());
+
+      const latString = locationData.latitude.toFixed(8);
+      const lngString = locationData.longitude.toFixed(8);
+
+      setLatitude(latString);
+      setLongitude(lngString);
 
       // Clear errors
       setAddressError(null);
@@ -106,8 +128,12 @@ export default function AddressAddScreen() {
       setStateError(null);
       setZipCodeError(null);
 
-      Alert.alert('Success', 'Location detected successfully!');
+      Alert.alert(
+        'Success',
+        `Location coordinates detected successfully!\nLat: ${latString}\nLng: ${lngString}\n\nNote: Address details will need to be filled manually.`
+      );
     } catch (error: any) {
+      console.error('Location error:', error);
       Alert.alert('Error', error.message || 'Failed to get current location');
     } finally {
       setIsGettingLocation(false);
@@ -119,7 +145,7 @@ export default function AddressAddScreen() {
 
     const addressData = {
       type: addressType,
-      address: address,
+      address: address.trim() || '', // Send empty string if no address provided
       city,
       state,
       zipCode,
@@ -130,7 +156,7 @@ export default function AddressAddScreen() {
 
     const success = await addAddress(addressData);
     if (success) {
-      router.back();
+      router.replace('/addresses');
     }
   };
 
@@ -151,7 +177,7 @@ export default function AddressAddScreen() {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => router.replace('/addresses')}
           >
             <ArrowLeft size={24} color={theme.colors.text} />
           </TouchableOpacity>
@@ -213,14 +239,14 @@ export default function AddressAddScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-            <Button
+            {/* <Button
               title="Get Current Location"
               onPress={handleGetCurrentLocation}
               variant="outline"
               isLoading={isGettingLocation}
               style={styles.locationButton}
               fullWidth
-            />
+            /> */}
           </View>
 
           <View style={styles.section}>
@@ -233,20 +259,26 @@ export default function AddressAddScreen() {
                   <Input
                     label="Latitude"
                     value={latitude}
-                    onChangeText={setLatitude}
-                    placeholder="Enter latitude"
+                    onChangeText={(text) => {
+                      setLatitude(text);
+                    }}
+                    placeholder="Auto-detected latitude"
                     keyboardType="numeric"
                     leftIcon={<MapPin size={20} color={theme.colors.icon} />}
+                    disabled={true} // Disable manual editing
                   />
                 </View>
                 <View style={styles.coordinateInput}>
                   <Input
                     label="Longitude"
                     value={longitude}
-                    onChangeText={setLongitude}
-                    placeholder="Enter longitude"
+                    onChangeText={(text) => {
+                      setLongitude(text);
+                    }}
+                    placeholder="Auto-detected longitude"
                     keyboardType="numeric"
                     leftIcon={<MapPin size={20} color={theme.colors.icon} />}
+                    disabled={true} // Disable manual editing
                   />
                 </View>
               </View>
@@ -259,13 +291,13 @@ export default function AddressAddScreen() {
             </Text>
 
             <Input
-              label="Street Address"
+              label="Street Address (Optional)"
               value={address}
               onChangeText={(text) => {
                 setAddress(text);
                 setAddressError(null);
               }}
-              placeholder="Enter your street address"
+              placeholder="Enter your street address (optional)"
               multiline
               error={addressError || undefined}
               leftIcon={<MapPin size={20} color={theme.colors.icon} />}

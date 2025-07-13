@@ -72,7 +72,7 @@ export default function CheckoutScreen() {
   }, [addresses]);
 
   const handleProceedToPayment = () => {
-    // router.push('/checkout/payment');
+    router.push('/checkout/payment');
   };
 
   const handleAddressPress = () => {

@@ -202,7 +202,7 @@ export default function RegisterScreen() {
             leftIcon={<Phone size={20} color={theme.colors.icon} />}
           />
 
-          <Input
+          {/* <Input
             label="Address"
             value={address}
             onChangeText={(text) => {
@@ -214,7 +214,7 @@ export default function RegisterScreen() {
             multiline
             error={addressError || undefined}
             leftIcon={<MapPin size={20} color={theme.colors.icon} />}
-          />
+          /> */}
 
           <Input
             label="Password"

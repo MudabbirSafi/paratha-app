@@ -59,33 +59,7 @@ class LocationService {
         }
     }
 
-    // Get address from coordinates (reverse geocoding)
-    async getAddressFromCoordinates(latitude: number, longitude: number): Promise<LocationData> {
-        try {
-            const reverseGeocode = await Location.reverseGeocodeAsync({
-                latitude,
-                longitude,
-            });
-
-            if (reverseGeocode.length > 0) {
-                const address = reverseGeocode[0];
-                return {
-                    latitude,
-                    longitude,
-                    address: this.formatAddress(address),
-                    city: address.city || '',
-                    state: address.region || '',
-                    zipCode: address.postalCode || '',
-                };
-            } else {
-                throw new Error('No address found for these coordinates');
-            }
-        } catch (error: any) {
-            throw new Error(error.message || 'Failed to get address from coordinates');
-        }
-    }
-
-    // Get current location with full address
+    // Get current location with coordinates only (no reverse geocoding)
     async getCurrentLocationWithAddress(): Promise<LocationData> {
         try {
             const location = await this.getCurrentLocation();
@@ -93,26 +67,18 @@ class LocationService {
                 throw new Error('Failed to get current location');
             }
 
-            const addressData = await this.getAddressFromCoordinates(
-                location.latitude,
-                location.longitude
-            );
-
-            return addressData;
+            // Return just the coordinates since reverse geocoding is deprecated
+            return {
+                latitude: parseFloat(location.latitude.toFixed(8)),
+                longitude: parseFloat(location.longitude.toFixed(8)),
+                address: '', // Leave empty since we can't get address
+                city: '', // Leave empty since we can't get city
+                state: '', // Leave empty since we can't get state
+                zipCode: '', // Leave empty since we can't get zip code
+            };
         } catch (error: any) {
-            throw new Error(error.message || 'Failed to get current location with address');
+            throw new Error(error.message || 'Failed to get current location');
         }
-    }
-
-    // Format address from reverse geocoding result
-    private formatAddress(address: any): string {
-        const parts = [];
-
-        if (address.street) parts.push(address.street);
-        if (address.streetNumber) parts.push(address.streetNumber);
-        if (address.name) parts.push(address.name);
-
-        return parts.join(' ');
     }
 
     // Check if location services are enabled

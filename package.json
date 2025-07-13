@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "EXPO_NO_TELEMETRY=1 expo start",
-    "build:web": "expo export --platform web",
+    "build:web": "expo export --platform web --output-dir dist",
+    "build:netlify": "expo export --platform web --output-dir dist",
     "lint": "expo lint",
     "android": "expo run:android",
     "ios": "expo run:ios"

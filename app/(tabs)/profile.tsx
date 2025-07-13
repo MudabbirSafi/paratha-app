@@ -27,12 +27,10 @@ import {
   LogOut,
   ChevronRight,
   MapPin,
-  CreditCard,
   User as UserIcon,
   Moon,
   Sun,
   Bell,
-  CircleHelp as HelpCircle,
   Edit,
   Save,
   X,
@@ -139,19 +137,9 @@ export default function ProfileScreen() {
       onPress: () => router.push('/addresses'),
     },
     {
-      icon: <CreditCard size={20} color={theme.colors.primary} />,
-      title: 'Payment Methods',
-      onPress: () => console.log('Payment Methods pressed'),
-    },
-    {
       icon: <Bell size={20} color={theme.colors.primary} />,
       title: 'Notifications',
       onPress: () => console.log('Notifications pressed'),
-    },
-    {
-      icon: <HelpCircle size={20} color={theme.colors.primary} />,
-      title: 'Help & Support',
-      onPress: () => console.log('Help & Support pressed'),
     },
   ];
 

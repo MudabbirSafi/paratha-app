@@ -33,7 +33,7 @@ const convertApiAddressToStoreAddress = (apiAddress: ApiAddress): Address => {
 const convertStoreAddressToApiAddress = (storeAddress: Omit<Address, 'id'>): CreateAddressRequest => {
     return {
         label: storeAddress.type,
-        street: storeAddress.address,
+        street: storeAddress.address || '', // Ensure empty string is sent if no address
         city: storeAddress.city,
         state: storeAddress.state,
         zipCode: storeAddress.zipCode,
@@ -122,7 +122,7 @@ export const useAddressStore = create<AddressStore>((set, get) => ({
             const updateData: UpdateAddressRequest = {};
 
             if (address.type !== undefined) updateData.label = address.type;
-            if (address.address !== undefined) updateData.street = address.address;
+            if (address.address !== undefined) updateData.street = address.address || '';
             if (address.city !== undefined) updateData.city = address.city;
             if (address.state !== undefined) updateData.state = address.state;
             if (address.zipCode !== undefined) {

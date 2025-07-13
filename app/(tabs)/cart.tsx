@@ -27,9 +27,7 @@ export default function CartScreen() {
   const total = subtotal + deliveryFee;
 
   const handleCheckout = () => {
-    // In a real app, navigate to checkout flow
-    // router.push('/checkout');
-    alert('Proceeding to checkout...');
+    router.push('/checkout');
   };
 
   // If theme is not available yet, render a minimal loading state

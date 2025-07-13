@@ -136,7 +136,7 @@ export default function DeliveryRegisterScreen() {
 
     const success = await registerDelivery(registerData);
     if (success) {
-      router.replace('/(tabs)');
+      router.replace('/delivery/DeliveryPartnerDashboard');
     }
   };
 

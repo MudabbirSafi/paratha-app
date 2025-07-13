@@ -21,9 +21,6 @@ import {
   ArrowLeft,
   Plus,
   MapPin,
-  Edit,
-  Trash2,
-  Star,
   Home,
   Building2,
   Map,
@@ -32,15 +29,8 @@ import {
 export default function AddressesScreen() {
   const { theme } = useThemeStore();
   const { isAuthenticated } = useAuthStore();
-  const {
-    addresses,
-    isLoading,
-    error,
-    loadAddresses,
-    deleteAddress,
-    setDefaultAddress,
-    clearError,
-  } = useAddressStore();
+  const { addresses, isLoading, error, loadAddresses, clearError } =
+    useAddressStore();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -78,40 +68,6 @@ export default function AddressesScreen() {
     return null;
   }
 
-  const handleDeleteAddress = async (address: Address) => {
-    Alert.alert(
-      'Delete Address',
-      `Are you sure you want to delete this ${address.type} address?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            const success = await deleteAddress(address.id);
-            if (success) {
-              Alert.alert('Success', 'Address deleted successfully');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleSetDefault = async (address: Address) => {
-    const success = await setDefaultAddress(address.id);
-    if (success) {
-      Alert.alert('Success', 'Default address updated successfully');
-    }
-  };
-
-  const handleEditAddress = (address: Address) => {
-    router.push({
-      pathname: '/address-edit',
-      params: { addressId: address.id },
-    });
-  };
-
   const handleAddAddress = () => {
     router.push('/address-add');
   };
@@ -145,7 +101,7 @@ export default function AddressesScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.replace('/profile')}
         >
           <ArrowLeft size={24} color={theme.colors.text} />
         </TouchableOpacity>
@@ -179,7 +135,18 @@ export default function AddressesScreen() {
           </View>
         )}
 
-        {addresses.length === 0 && !isLoading ? (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text
+              style={[
+                styles.loadingText,
+                { color: theme.colors.textSecondary },
+              ]}
+            >
+              Loading addresses...
+            </Text>
+          </View>
+        ) : addresses.length === 0 ? (
           <View style={styles.emptyContainer}>
             <MapPin size={64} color={theme.colors.textSecondary} />
             <Text
@@ -227,28 +194,7 @@ export default function AddressesScreen() {
                       />
                     )}
                   </View>
-                  <View style={styles.addressActions}>
-                    {!address.isDefault && (
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => handleSetDefault(address)}
-                      >
-                        <Star size={16} color={theme.colors.primary} />
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      style={styles.actionButton}
-                      onPress={() => handleEditAddress(address)}
-                    >
-                      <Edit size={16} color={theme.colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.actionButton}
-                      onPress={() => handleDeleteAddress(address)}
-                    >
-                      <Trash2 size={16} color={theme.colors.error} />
-                    </TouchableOpacity>
-                  </View>
+                  <View style={styles.addressActions}></View>
                 </View>
 
                 <Text
@@ -400,5 +346,15 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 64,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Medium',
   },
 });

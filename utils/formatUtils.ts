@@ -1,5 +1,5 @@
 export const formatCurrency = (amount: number): string => {
-  return `$${amount.toFixed(2)}`;
+  return `₹${amount.toFixed(2)}`;
 };
 
 export const formatDate = (date: string | Date): string => {
