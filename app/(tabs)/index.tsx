@@ -1,16 +1,3 @@
-import React, { useState, useCallback } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  FlatList,
-  Dimensions,
-  RefreshControl,
-  Image,
-} from 'react-native';
-import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeStore } from '@/store/themeStore';
 import { useAuthStore } from '@/store/authStore';
 import {
@@ -22,6 +9,24 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { PromotionCard } from '@/components/ui/PromotionCard';
 import { CategoryButton } from '@/components/ui/CategoryButton';
 import { Input } from '@/components/ui/Input';
+
+import React, { useState, useCallback } from 'react';
+
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  Dimensions,
+  RefreshControl,
+  Image,
+} from 'react-native';
+
+import { router } from 'expo-router';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { Search, Bell } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -165,6 +170,7 @@ export default function HomeScreen() {
                   id={item.id}
                   name={item.name}
                   price={item.price}
+                  businessPrice={item.businessPrice}
                   image={item.image}
                   rating={item.rating}
                   isBestseller={item.isBestseller}
@@ -197,6 +203,7 @@ export default function HomeScreen() {
                 id={item.id}
                 name={item.name}
                 price={item.price}
+                businessPrice={item.businessPrice}
                 image={item.image}
                 rating={item.rating}
                 isBestseller={item.isBestseller}

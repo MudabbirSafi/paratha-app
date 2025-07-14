@@ -71,7 +71,7 @@ export default function SearchScreen() {
             style={[
               styles.emptyText,
               {
-                color: theme.colors.secondaryText,
+                color: theme.colors.textSecondary,
                 fontFamily: 'Poppins-Medium',
               },
             ]}
@@ -82,7 +82,7 @@ export default function SearchScreen() {
             style={[
               styles.emptySubtext,
               {
-                color: theme.colors.secondaryText,
+                color: theme.colors.textSecondary,
                 fontFamily: 'Poppins-Regular',
               },
             ]}
@@ -101,6 +101,7 @@ export default function SearchScreen() {
                 id={item.id}
                 name={item.name}
                 price={item.price}
+                businessPrice={item.businessPrice}
                 image={item.image}
                 rating={item.rating}
                 isBestseller={item.isBestseller}

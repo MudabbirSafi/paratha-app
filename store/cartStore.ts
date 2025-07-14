@@ -9,11 +9,12 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  isBusinessItem?: boolean;
 }
 
 interface CartStore {
   items: CartItem[];
-  addItem: (productId: string, quantity?: number) => void;
+  addItem: (productId: string, quantity?: number, isBusinessUser?: boolean) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -24,9 +25,13 @@ interface CartStore {
 export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
 
-  addItem: (productId: string, quantity = 1) => {
+  addItem: (productId: string, quantity = 1, isBusinessUser = false) => {
     const product = mockProducts.find(p => p.id === productId);
     if (!product) return;
+
+    // For business users, ensure quantity is in multiples of 50
+    const adjustedQuantity = isBusinessUser ? Math.max(50, Math.ceil(quantity / 50) * 50) : quantity;
+    const displayPrice = isBusinessUser && product.businessPrice ? product.businessPrice : product.price;
 
     set(state => {
       const existingItem = state.items.find(item => item.productId === productId);
@@ -35,7 +40,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         return {
           items: state.items.map(item =>
             item.productId === productId
-              ? { ...item, quantity: item.quantity + quantity }
+              ? { ...item, quantity: item.quantity + adjustedQuantity }
               : item
           ),
         };
@@ -44,9 +49,10 @@ export const useCartStore = create<CartStore>((set, get) => ({
           id: Date.now().toString(),
           productId: product.id,
           name: product.name,
-          price: product.price,
+          price: displayPrice,
           image: product.image,
-          quantity,
+          quantity: adjustedQuantity,
+          isBusinessItem: isBusinessUser,
         };
         return {
           items: [...state.items, newItem],

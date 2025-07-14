@@ -1,5 +1,6 @@
 import { useThemeStore } from '@/store/themeStore';
 import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 import { mockProducts } from '@/constants/MockData';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -26,8 +27,10 @@ export default function ProductScreen() {
   const { id } = useLocalSearchParams();
   const { theme } = useThemeStore();
   const { addItem } = useCartStore();
+  const { user } = useAuthStore();
 
-  const [quantity, setQuantity] = useState(1);
+  const isBusinessUser = user?.role === 'business';
+  const [quantity, setQuantity] = useState(isBusinessUser ? 50 : 1);
 
   const product = mockProducts.find((p: Product) => p.id === id);
 
@@ -44,16 +47,22 @@ export default function ProductScreen() {
   }
 
   const handleQuantityChange = (delta: number) => {
-    setQuantity((prev) => Math.max(1, prev + delta));
+    if (isBusinessUser) {
+      // For business users, change in multiples of 50
+      const newQuantity = Math.max(50, quantity + delta * 50);
+      setQuantity(newQuantity);
+    } else {
+      setQuantity((prev) => Math.max(1, prev + delta));
+    }
   };
 
   const handleAddToCart = async () => {
-    addItem(product.id, quantity);
+    addItem(product.id, quantity, isBusinessUser);
     // await showAddToCartNotification(product.name);
   };
 
   const handleBuyNow = () => {
-    addItem(product.id, quantity);
+    addItem(product.id, quantity, isBusinessUser);
     router.push('/checkout');
   };
 
@@ -197,8 +206,23 @@ export default function ProductScreen() {
           <Text style={[styles.priceLabel, { color: theme.colors.secondary }]}>
             Price
           </Text>
+          {isBusinessUser && product.businessPrice && (
+            <Text
+              style={[
+                styles.originalPrice,
+                { color: theme.colors.textSecondary },
+              ]}
+            >
+              ₹{(product.price * quantity).toFixed(2)}
+            </Text>
+          )}
           <Text style={[styles.price, { color: theme.colors.text }]}>
-            ₹{(product.price * quantity).toFixed(2)}
+            ₹
+            {(
+              (isBusinessUser && product.businessPrice
+                ? product.businessPrice
+                : product.price) * quantity
+            ).toFixed(2)}
           </Text>
         </View>
 
@@ -347,6 +371,11 @@ const styles = StyleSheet.create({
   priceLabel: {
     fontSize: 14,
     marginBottom: 4,
+  },
+  originalPrice: {
+    fontSize: 16,
+    textDecorationLine: 'line-through',
+    marginBottom: 2,
   },
   price: {
     fontSize: 24,

@@ -13,14 +13,28 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
   const { updateQuantity, removeItem } = useCartStore();
 
   const handleIncrease = () => {
-    updateQuantity(item.id, item.quantity + 1);
+    if (item.isBusinessItem) {
+      // For business items, increase by 50
+      updateQuantity(item.id, item.quantity + 50);
+    } else {
+      updateQuantity(item.id, item.quantity + 1);
+    }
   };
 
   const handleDecrease = () => {
-    if (item.quantity > 1) {
-      updateQuantity(item.id, item.quantity - 1);
+    if (item.isBusinessItem) {
+      // For business items, decrease by 50, minimum 50
+      if (item.quantity > 50) {
+        updateQuantity(item.id, item.quantity - 50);
+      } else {
+        removeItem(item.id);
+      }
     } else {
-      removeItem(item.id);
+      if (item.quantity > 1) {
+        updateQuantity(item.id, item.quantity - 1);
+      } else {
+        removeItem(item.id);
+      }
     }
   };
 
@@ -46,7 +60,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
           {item.name}
         </Text>
 
-        <Text style={[styles.price, { color: theme.colors.secondaryText }]}>
+        <Text style={[styles.price, { color: theme.colors.textSecondary }]}>
           ₹{item.price.toFixed(2)}
         </Text>
 

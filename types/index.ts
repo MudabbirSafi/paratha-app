@@ -5,6 +5,7 @@ export interface Product {
     name: string;
     description: string;
     price: number;
+    businessPrice?: number; // Discounted price for business users
     image: string;
     categoryId: string;
     rating: number;
